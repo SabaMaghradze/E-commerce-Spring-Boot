@@ -10,4 +10,8 @@ public interface CategoryService {
     public Boolean categoryExists(String name);
 
     public List<Category> getAllCategories();
+
+    public Boolean deleteCategory(int id);
+
+    public Category getCategoryById(int id);
 }
