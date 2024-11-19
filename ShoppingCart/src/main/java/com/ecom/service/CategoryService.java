@@ -14,4 +14,5 @@ public interface CategoryService {
     public Boolean deleteCategory(int id);
 
     public Category getCategoryById(int id);
+
 }
