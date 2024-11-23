@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service // tells spring to manage the class as bean
@@ -47,4 +48,40 @@ public class CategoryServiceImp implements CategoryService {
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
+
+    @Override
+    public List<Category> getAllActiveCategories() {
+
+        List<Category> main = new ArrayList<>();
+
+        List<Category> allCategories = categoryRepository.findAll();
+
+        for (int i = 0; i < allCategories.size(); i++) {
+            if (allCategories.get(i).getIsActive()) {
+                main.add(allCategories.get(i));
+            }
+        }
+        return main;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -132,7 +132,10 @@ public class AdminController {
     public String saveProduct(@ModelAttribute Product product, @RequestParam("file") MultipartFile image, HttpSession session) {
 
         String imageName = image.isEmpty() ? "default.jpg" : image.getOriginalFilename();
+
         product.setImage(imageName);
+        product.setDiscount(0);
+        product.setDiscountPrice(product.getPrice());
 
         Product saveProduct = productService.saveProduct(product);
 
@@ -185,12 +188,25 @@ public class AdminController {
         String imageName = !image.isEmpty() ? image.getOriginalFilename() : existingProduct.getImage();
 
         if (!ObjectUtils.isEmpty(existingProduct)) {
+
             existingProduct.setImage(imageName);
             existingProduct.setTitle(product.getTitle());
             existingProduct.setCategory(product.getCategory());
             existingProduct.setDescription(product.getDescription());
             existingProduct.setPrice(product.getPrice());
             existingProduct.setStock(product.getStock());
+            existingProduct.setIsActive(product.getIsActive());
+
+            existingProduct.setDiscount(product.getDiscount());
+
+            Double discount = product.getPrice() * (product.getDiscount() / 100.00);
+            Double discountPrice = product.getPrice() - discount;
+
+            existingProduct.setDiscountPrice(discountPrice);
+        }
+
+        if (product.getDiscount() < 0 || product.getDiscount() > 100) {
+            session.setAttribute("errorMsg", "Invalid discount");
         }
 
         Product updateProduct = productService.saveProduct(existingProduct);

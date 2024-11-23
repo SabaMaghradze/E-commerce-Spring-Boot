@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,6 +42,27 @@ public class ProductServiceImpl implements ProductService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<Product> getActiveProducts(String category) {
+
+        List<Product> main = new ArrayList<>();
+
+        List<Product> products = null;
+
+        if (ObjectUtils.isEmpty(category)) {
+            products = productRepo.findAll();
+        } else {
+            products = productRepo.findByCategory(category);
+        }
+
+        for (int i = 0; i < products.size(); i++) {
+            if (products.get(i).getIsActive()) {
+                main.add(products.get(i));
+            }
+        }
+        return main;
     }
 }
 
