@@ -1,6 +1,7 @@
 package com.ecom.config;
 
 import com.ecom.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,6 +51,9 @@ public class CustomUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        if (user.getIsEnabled() == null) {
+            user.setIsEnabled(false);
+        }
+        return user.getIsEnabled();
     }
 }

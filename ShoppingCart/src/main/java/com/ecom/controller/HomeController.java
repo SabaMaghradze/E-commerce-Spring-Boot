@@ -1,5 +1,6 @@
 package com.ecom.controller;
 
+import com.ecom.model.Category;
 import com.ecom.model.Product;
 import com.ecom.model.User;
 import com.ecom.service.CategoryService;
@@ -8,6 +9,7 @@ import com.ecom.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -20,6 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.Principal;
+import java.util.List;
 
 @Controller
 public class HomeController {
@@ -46,6 +50,15 @@ public class HomeController {
     @GetMapping("/register")
     public String registration() {
         return "registration";
+    }
+
+    @ModelAttribute
+    public void getUserDetails(Principal principal, Model model) {
+        if (principal != null) {
+            String email = principal.getName();
+            model.addAttribute("user", userService.getUserByEmail(email));
+        }
+        model.addAttribute("categories", categoryService.getAllActiveCategories());
     }
 
     @GetMapping("/products")

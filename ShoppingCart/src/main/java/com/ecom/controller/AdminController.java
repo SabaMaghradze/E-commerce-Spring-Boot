@@ -4,6 +4,7 @@ import com.ecom.model.Category;
 import com.ecom.model.Product;
 import com.ecom.service.CategoryService;
 import com.ecom.service.ProductService;
+import com.ecom.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -19,16 +20,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.Principal;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/")
 public class AdminController {
 
     @Autowired
     private CategoryService categoryService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private ProductService productService;
+
+    @ModelAttribute
+    public void getUserDetails(Principal principal, Model model) {
+        if (principal != null) {
+            String email = principal.getName();
+            model.addAttribute("user", userService.getUserByEmail(email));
+        }
+        model.addAttribute("categories", categoryService.getAllActiveCategories());
+    }
 
     @GetMapping("/category")
     public String category(Model model) {
@@ -228,6 +242,25 @@ public class AdminController {
         }
         return "redirect:/admin/products";
     }
+
+    @GetMapping("/users")
+    public String loadUsers(Model model) {
+        model.addAttribute("users", userService.getUserByRole("ROLE_USER"));
+        return "admin/users";
+    }
+
+    @GetMapping("/updateStatus")
+    public String updateUserAccountStatus(@RequestParam Boolean status, @RequestParam int id, HttpSession session) {
+        Boolean bool = userService.updateAccountStatus(status, id);
+
+        if (bool) {
+            session.setAttribute("succMsg", "Account status updated");
+        } else {
+            session.setAttribute("errorMsg", "Failed to update account status");
+        }
+        return "redirect:/admin/users";
+    }
+
 }
 
 

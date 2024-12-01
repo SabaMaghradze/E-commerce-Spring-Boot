@@ -31,4 +31,5 @@ public class User {
 //    private String confirmPassword;
     private String profileImage;
     private String role;
+    private Boolean isEnabled;
 }
