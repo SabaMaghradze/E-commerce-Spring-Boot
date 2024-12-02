@@ -10,4 +10,8 @@ public interface UserService {
     public List<User> getAllUsers();
     public List<User> getUserByRole(String role);
     public Boolean updateAccountStatus(Boolean status, int id);
+    public void increaseFailedAttempts(User user);
+    public void lockAccount(User user);
+    public Boolean unlockAcc(User user);
+    public void resetAttempt(int userId);
 }
