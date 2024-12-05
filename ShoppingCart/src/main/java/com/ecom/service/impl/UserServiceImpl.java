@@ -90,6 +90,13 @@ public class UserServiceImpl implements UserService {
     }
 
     public void resetAttempt(int id) {
+        // to do
+    }
 
+    @Override
+    public void updateResetToken(String email, String resetToken) {
+         User user = userRepo.findByEmail(email);
+         user.setResetToken(resetToken);
+         userRepo.save(user);
     }
 }

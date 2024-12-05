@@ -14,4 +14,5 @@ public interface UserService {
     public void lockAccount(User user);
     public Boolean unlockAcc(User user);
     public void resetAttempt(int userId);
+    public void updateResetToken(String email, String resetToken);
 }
