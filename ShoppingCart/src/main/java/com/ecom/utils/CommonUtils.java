@@ -15,9 +15,9 @@ import java.io.UnsupportedEncodingException;
 public class CommonUtils {
 
     @Autowired
-    private static JavaMailSender mailSender;
+    private JavaMailSender mailSender;
 
-    public static Boolean sendMail(String url, String recipientEmail) throws MessagingException, UnsupportedEncodingException {
+    public Boolean sendMail(String url, String recipientEmail) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
 //        System.out.println(message);
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -36,7 +36,7 @@ public class CommonUtils {
         return true;
     }
 
-    public static String generateUrl(HttpServletRequest req) {
+    public String generateUrl(HttpServletRequest req) {
 //        System.out.println(req);
 //        System.out.println(req.getRequestURL());
 //        System.out.println(req.getRequestURI());

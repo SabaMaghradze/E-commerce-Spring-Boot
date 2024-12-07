@@ -7,11 +7,14 @@ import com.ecom.service.CategoryService;
 import com.ecom.service.ProductService;
 import com.ecom.service.UserService;
 import com.ecom.utils.CommonUtils;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -20,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,13 +36,19 @@ import java.util.UUID;
 public class HomeController {
 
     @Autowired
-    CategoryService categoryService;
+    private CategoryService categoryService;
 
     @Autowired
-    ProductService productService;
+    private ProductService productService;
 
     @Autowired
-    UserService userService;
+    private CommonUtils commonUtils;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @GetMapping("")
     public String index() {
@@ -110,13 +120,8 @@ public class HomeController {
         return "forgot_password";
     }
 
-    @GetMapping("/reset-password")
-    public String resetPasswordPage() {
-        return "reset_password";
-    }
-
     @PostMapping("/forgot-password")
-    public String processForgotPassword(@RequestParam String email, HttpSession session, HttpServletRequest req) {
+    public String processForgotPassword(@RequestParam String email, HttpSession session, HttpServletRequest req) throws MessagingException, UnsupportedEncodingException {
         User user = userService.getUserByEmail(email);
 
         if (ObjectUtils.isEmpty(user)) {
@@ -125,10 +130,9 @@ public class HomeController {
 
             String resetToken = UUID.randomUUID().toString();
             userService.updateResetToken(email, resetToken);
+            String url = commonUtils.generateUrl(req) + "/reset-password?token=" + resetToken;
 
-            String url = CommonUtils.generateUrl(req)+"/reset-password?token="+resetToken;
-
-            Boolean sendMail = CommonUtils.sendMail(url, email);
+            Boolean sendMail = commonUtils.sendMail(url, email);
             if (sendMail) {
                 session.setAttribute("succMsg", "Please check your email, password reset link has been sent");
             } else {
@@ -136,6 +140,35 @@ public class HomeController {
             }
         }
         return "redirect:/forgot-password";
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPasswordPage(@RequestParam String token, HttpSession session, Model model) {
+        User user = userService.getUserByResetToken(token);
+
+        if (user == null) {
+            model.addAttribute("errorMsg", "Your link is invalid or expired.");
+            return "error";
+        }
+        model.addAttribute("token", token);
+        return "reset_password";
+    }
+
+    @PostMapping("/reset-password")
+    public String processResetPassword(@RequestParam String token, @RequestParam String password, HttpSession session, Model model) {
+        User user = userService.getUserByResetToken(token);
+
+        if (user == null) {
+            model.addAttribute("errorMsg", "Your link is invalid or expired.");
+            return "error";
+        } else {
+            user.setPassword(passwordEncoder.encode(password));
+            user.setResetToken(null);
+            userService.updateUser(user);
+            session.setAttribute("succMsg", "Password has been changed successfully");
+            return "redirect:/reset_password";
+        }
+
     }
 }
 

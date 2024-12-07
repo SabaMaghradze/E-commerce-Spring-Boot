@@ -47,6 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Boolean updateAccountStatus(Boolean status, int id) {
+
         Optional<User> findByUser = userRepo.findById(id);
 
         if (findByUser.isPresent()) {
@@ -95,8 +96,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateResetToken(String email, String resetToken) {
-         User user = userRepo.findByEmail(email);
-         user.setResetToken(resetToken);
-         userRepo.save(user);
+        User user = userRepo.findByEmail(email);
+        user.setResetToken(resetToken);
+        userRepo.save(user);
+    }
+
+    @Override
+    public User getUserByResetToken(String token) {
+        return userRepo.findByResetToken(token);
+    }
+
+    @Override
+    public User updateUser(User user) {
+        return userRepo.save(user);
     }
 }
