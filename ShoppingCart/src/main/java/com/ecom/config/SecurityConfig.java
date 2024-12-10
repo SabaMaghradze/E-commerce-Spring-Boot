@@ -23,7 +23,7 @@ public class SecurityConfig {
     private AuthFailureHandler authFailureHandler;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 

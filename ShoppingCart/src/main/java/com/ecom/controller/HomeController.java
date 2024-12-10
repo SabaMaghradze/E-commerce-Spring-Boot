@@ -1,6 +1,5 @@
 package com.ecom.controller;
 
-import com.ecom.model.Category;
 import com.ecom.model.Product;
 import com.ecom.model.User;
 import com.ecom.service.CategoryService;
@@ -12,9 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -29,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
-import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -70,6 +66,8 @@ public class HomeController {
         if (principal != null) {
             String email = principal.getName();
             model.addAttribute("user", userService.getUserByEmail(email));
+        } else {
+            model.addAttribute("user", null);
         }
         model.addAttribute("categories", categoryService.getAllActiveCategories());
     }
@@ -127,7 +125,6 @@ public class HomeController {
         if (ObjectUtils.isEmpty(user)) {
             session.setAttribute("errorMsg", "Invalid Email");
         } else {
-
             String resetToken = UUID.randomUUID().toString();
             userService.updateResetToken(email, resetToken);
             String url = commonUtils.generateUrl(req) + "/reset-password?token=" + resetToken;
@@ -143,12 +140,12 @@ public class HomeController {
     }
 
     @GetMapping("/reset-password")
-    public String resetPasswordPage(@RequestParam String token, HttpSession session, Model model) {
+    public String resetPasswordPage(@RequestParam String token, Model model) {
         User user = userService.getUserByResetToken(token);
 
         if (user == null) {
-            model.addAttribute("errorMsg", "Your link is invalid or expired.");
-            return "error";
+            model.addAttribute("msg", "Your link is invalid or expired.");
+            return "message";
         }
         model.addAttribute("token", token);
         return "reset_password";
@@ -160,15 +157,15 @@ public class HomeController {
 
         if (user == null) {
             model.addAttribute("errorMsg", "Your link is invalid or expired.");
-            return "error";
+            return "message";
         } else {
             user.setPassword(passwordEncoder.encode(password));
             user.setResetToken(null);
             userService.updateUser(user);
             session.setAttribute("succMsg", "Password has been changed successfully");
-            return "redirect:/reset_password";
+            model.addAttribute("msg", "Password has been changed successfully");
+            return "message";
         }
-
     }
 }
 

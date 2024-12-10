@@ -19,9 +19,8 @@ public class CommonUtils {
 
     public Boolean sendMail(String url, String recipientEmail) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
-//        System.out.println(message);
         MimeMessageHelper helper = new MimeMessageHelper(message);
-//        System.out.println(helper);
+
         helper.setFrom("test@gmail.com", "Shopping Cart");
         helper.setTo(recipientEmail);
 
@@ -37,11 +36,6 @@ public class CommonUtils {
     }
 
     public String generateUrl(HttpServletRequest req) {
-//        System.out.println(req);
-//        System.out.println(req.getRequestURL());
-//        System.out.println(req.getRequestURI());
-//        System.out.println(req.getServletPath());
-
         String siteUrl = req.getRequestURL().toString();
         return siteUrl.replace(req.getServletPath(), "");
     }
