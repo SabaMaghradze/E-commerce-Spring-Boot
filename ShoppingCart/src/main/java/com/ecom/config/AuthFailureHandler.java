@@ -33,6 +33,7 @@ public class AuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
             if (user.getAccNonLocked()) {
                 if (user.getNumberOfFailedAttempts() < AppConstants.ATTEMPT_COUNT) {
                     userService.increaseFailedAttempts(user);
+                    exception = new LockedException("Incorrect Credentials, Please Try Again");
                 } else {
                     userService.lockAccount(user);
                     exception = new LockedException("Your account has been locked, failed attempt N.3");

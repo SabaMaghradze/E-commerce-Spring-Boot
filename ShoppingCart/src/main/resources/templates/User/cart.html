@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" th:replace="base::Layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<section>
+    <div class="container mt-5 p-5">
+        <div class="card">
+            <div class="card-header text-center">
+                <p class="fs-4">Cart Page</p>
+                <th:block th:if="${session.succMsg}">
+                    <p class="text-success fw-bold">[[${session.succMsg}]]</p>
+                    <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
+                </th:block>
+                <th:block th:if="${session.errorMsg}">
+                    <p class="text-danger fw-bold">[[${session.errorMsg}]]</p>
+                    <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
+                </th:block>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Serial Number</th>
+                        <th scope="col">Image</th>
+                        <th scope="col">Product Name</th>
+                        <th scope="col">Price</th>
+                        <th scope="col" class="text-center">Quantity</th>
+                        <th scope="col">Total Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${carts.isEmpty()}">
+                        <td colspan="6" class="text-center">
+                            <p>Your cart is empty!</p>
+                        </td>
+                    </tr>
+                    <tr th:each="cart, c : ${carts}">
+                        <th scope="row">[[${c.count}]]</th>
+                        <td>
+                            <img th:src="@{'/img/product_img/'+${cart.product.image}}" width="70px" height="70px">
+                        </td>
+                        <td>[[${cart.product.title}]]</td>
+                        <td>[[${cart.product.discountPrice}]]</td>
+                        <td class="text-center">
+                            <a th:href="@{'/user/quantityUpdate?symbol=minus&cartId='+${cart.id}}">
+                                <i class="fa-solid fa-minus"></i>
+                            </a>
+                            [[${cart.quantity}]]
+                            <a th:href="@{'/user/quantityUpdate?symbol=plus&cartId='+${cart.id}}">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
+                        </td>
+                        <td>[[${cart.totalPrice}]]</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"></td>
+                        <td class="fw-bold">Total price</td>
+                        <td class="fw-bold">[[${netPrice}]]</td>
+                    </tr>
+
+                    </tbody>
+                </table>
+                <div class="text-center">
+                    <tr th:if="${!carts.isEmpty()}">
+                        <td colspan="6" class="text-center">
+                            <a href="/user/orders" class="btn btn-warning">Proceed to payment</a>
+                        </td>
+                    </tr>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

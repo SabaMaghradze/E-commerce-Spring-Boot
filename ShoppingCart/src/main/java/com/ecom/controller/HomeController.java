@@ -2,6 +2,7 @@ package com.ecom.controller;
 
 import com.ecom.model.Product;
 import com.ecom.model.User;
+import com.ecom.service.CartService;
 import com.ecom.service.CategoryService;
 import com.ecom.service.ProductService;
 import com.ecom.service.UserService;
@@ -46,6 +47,9 @@ public class HomeController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private CartService cartService;
+
     @GetMapping("")
     public String index() {
         return "index";
@@ -65,7 +69,10 @@ public class HomeController {
     public void getUserDetails(Principal principal, Model model) {
         if (principal != null) {
             String email = principal.getName();
-            model.addAttribute("user", userService.getUserByEmail(email));
+            User user = userService.getUserByEmail(email);
+            model.addAttribute("user", user);
+            int cartCount = cartService.getCount(user.getId());
+            model.addAttribute("cartCount", cartCount);
         } else {
             model.addAttribute("user", null);
         }

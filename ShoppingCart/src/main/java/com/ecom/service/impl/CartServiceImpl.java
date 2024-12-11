@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -51,8 +52,49 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<Cart> getCartByUser(Integer userId) {
-        return List.of();
+    public List<Cart> getCartsByUser(Integer userId) {
+
+        List<Cart> carts = cartRepo.getCartsByUserId(userId);
+
+        Double netPrice = 0.0;
+
+        List<Cart> updateCarts = new ArrayList<>();
+
+        for (Cart cart : carts) {
+            Double totalPrice = cart.getProduct().getDiscountPrice()*cart.getQuantity();
+            cart.setTotalPrice(totalPrice);
+            netPrice += totalPrice;
+            cart.setNetPrice(netPrice);
+            updateCarts.add(cart);
+        }
+        return carts;
+    }
+
+    @Override
+    public int getCount(int userId) {
+        return cartRepo.countByUserId(userId);
+    }
+
+    @Override
+    public void updateQuantity(String symbol, int cartId) {
+
+        Cart cart = cartRepo.findById(cartId).get();
+
+        if (cart.getQuantity() > 1) {
+            if (symbol.equalsIgnoreCase("minus")) {
+                cart.setQuantity(cart.getQuantity() - 1);
+            } else if (symbol.equalsIgnoreCase("plus")) {
+                cart.setQuantity(cart.getQuantity() + 1);
+            }
+            cartRepo.save(cart);
+        } else {
+            if (symbol.equalsIgnoreCase("plus")) {
+                cart.setQuantity(cart.getQuantity() + 1);
+                cartRepo.save(cart);
+            } else if (symbol.equalsIgnoreCase("minus")) {
+                cartRepo.delete(cart);
+            }
+        }
     }
 }
 

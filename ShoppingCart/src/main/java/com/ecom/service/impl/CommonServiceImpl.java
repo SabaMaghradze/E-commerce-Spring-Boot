@@ -17,8 +17,5 @@ public class CommonServiceImpl implements CommonService {
         HttpSession session = req.getSession();
         session.removeAttribute("succMsg");
         session.removeAttribute("errorMsg");
-//        System.out.println("request url: " + req.getRequestURL());
-//        System.out.println("port: " + req.getServerPort());
-//        System.out.println("servlet path: " + req.getServletPath());
     }
 }
