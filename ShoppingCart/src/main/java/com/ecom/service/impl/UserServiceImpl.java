@@ -5,9 +5,17 @@ import com.ecom.repository.UserRepo;
 import com.ecom.service.UserService;
 import com.ecom.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -109,5 +117,37 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUser(User user) {
         return userRepo.save(user);
+    }
+
+    @Override
+    public User updateUserProfile(User user, MultipartFile image) {
+
+        User userExists = userRepo.findById(user.getId()).get();
+
+        if (!image.isEmpty()) {
+            userExists.setProfileImage(user.getProfileImage());
+        }
+
+        if (!ObjectUtils.isEmpty(userExists)) {
+            userExists.setName(user.getName());
+            userExists.setEmail(user.getEmail());
+            userExists.setMobileNumber(user.getMobileNumber());
+            userExists.setState(user.getState());
+            userExists.setCity(user.getCity());
+            userExists.setAddress(user.getAddress());
+            userExists.setPincode(user.getPincode());
+            userExists = userRepo.save(userExists);
+        }
+
+        if (!image.isEmpty()) {
+            try {
+                File saveFolder = new ClassPathResource("static/img").getFile();
+                Path path = Paths.get(saveFolder.getAbsolutePath() + File.separator + "profile_img" + File.separator + image.getOriginalFilename());
+                Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
+        return userExists;
     }
 }

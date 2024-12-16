@@ -2,13 +2,13 @@ package com.ecom.controller;
 
 import com.ecom.model.Cart;
 import com.ecom.model.OrderRequest;
+import com.ecom.model.ProductOrder;
 import com.ecom.model.User;
-import com.ecom.repository.CartRepo;
-import com.ecom.repository.UserRepo;
 import com.ecom.service.CartService;
 import com.ecom.service.CategoryService;
 import com.ecom.service.ProductOrderService;
 import com.ecom.service.UserService;
+import com.ecom.utils.CommonUtils;
 import com.ecom.utils.OrderStatus;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -35,6 +36,9 @@ public class UserController {
 
     @Autowired
     private ProductOrderService productOrderService;
+
+    @Autowired
+    private CommonUtils commonUtils;
 
     @ModelAttribute
     public void getUserDetails(Principal principal, Model model) {
@@ -86,16 +90,84 @@ public class UserController {
         return "redirect:/user/cart";
     }
 
-    @GetMapping("/orders")
-    public String ordersPage() {
+    @GetMapping("/order")
+    public String orderPage(Model model, Principal principal) {
+        User user = getLoggedInUserDetails(principal);
+        List<Cart> carts = cartService.getCartsByUser(user.getId());
+        model.addAttribute("carts", carts);
+        if (!carts.isEmpty()) {
+            model.addAttribute("netPrice", carts.get(carts.size() - 1).getNetPrice());
+            model.addAttribute("subtotal", (carts.get(carts.size() - 1).getNetPrice()) + 250 + 100);
+        } else {
+            model.addAttribute("netPrice", 0);
+            model.addAttribute("subtotal", 0);
+        }
         return "/user/order";
     }
 
     @PostMapping("/save-order")
-    public String saveOrder(@ModelAttribute OrderRequest orderRequest, Principal principal) {
+    public String saveOrder(@ModelAttribute OrderRequest orderRequest, Principal principal) throws Exception {
         User user = userService.getUserByEmail(principal.getName());
         productOrderService.saveOrder(user.getId(), orderRequest);
+        return "redirect:/user/order_success";
+    }
+
+    @GetMapping("/order_success")
+    public String loadOrderSuccessPage() {
         return "/User/order_success";
+    }
+
+    @GetMapping("/orders")
+    public String loadMyOrdersPage(Principal principal, Model model) {
+        User user = userService.getUserByEmail(principal.getName());
+        model.addAttribute("orders", productOrderService.getOrdersByUserId(user.getId()));
+        return "/User/my_orders";
+    }
+
+    @GetMapping("/update-status")
+    public String updateOrderStatus(@RequestParam int id, @RequestParam int status, HttpSession session) {
+
+        OrderStatus[] values = OrderStatus.values();
+        String statuss = null;
+
+        for (OrderStatus value : values) {
+            if (value.getId() == status) {
+                statuss = value.getName();
+            }
+        }
+
+        ProductOrder updateOrder = productOrderService.updateOrderStatus(id, statuss);
+
+        try {
+            commonUtils.sendMailForOrder(updateOrder, statuss);
+        } catch (Exception exc) {
+            exc.printStackTrace();
+        }
+
+        if (!ObjectUtils.isEmpty(updateOrder)) {
+            session.setAttribute("succMsg", "Status Updated");
+        } else {
+            session.setAttribute("errorMsg", "Failed to update status");
+        }
+        return "redirect:/user/orders";
+    }
+
+    @GetMapping("/profile")
+    public String loadProfilePage() {
+        return "/user/profile";
+    }
+
+    @PostMapping("/update-profile")
+    public String updateUserProfile(@ModelAttribute User user, @RequestParam MultipartFile image, HttpSession session) {
+
+        User updateUser = userService.updateUserProfile(user, image);
+
+        if (ObjectUtils.isEmpty(updateUser)) {
+            session.setAttribute("errorMsg", "Failed to update user");
+        } else {
+            session.setAttribute("succMsg", "User has been successfully updated");
+        }
+        return "redirect:/user/profile";
     }
 }
 

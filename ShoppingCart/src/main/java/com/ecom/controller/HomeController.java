@@ -159,11 +159,20 @@ public class HomeController {
     }
 
     @PostMapping("/reset-password")
-    public String processResetPassword(@RequestParam String token, @RequestParam String password, HttpSession session, Model model) {
+    public String processResetPassword(@RequestParam String token, @RequestParam String password,
+                                       @RequestParam String confirmPassword, HttpSession session,
+                                       Model model) {
+
+        if (!password.equalsIgnoreCase(confirmPassword)) {
+            session.setAttribute("errorMsg", "Passwords do not match");
+            return "redirect:/reset-password?token=" + token;
+        }
+
         User user = userService.getUserByResetToken(token);
 
         if (user == null) {
-            model.addAttribute("errorMsg", "Your link is invalid or expired.");
+            session.setAttribute("errorMsg", "Your link is invalid or expired.");
+            model.addAttribute("msg", "Your link is invalid or expired.");
             return "message";
         } else {
             user.setPassword(passwordEncoder.encode(password));

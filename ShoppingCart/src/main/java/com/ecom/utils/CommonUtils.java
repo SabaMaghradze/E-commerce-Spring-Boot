@@ -1,5 +1,6 @@
 package com.ecom.utils;
 
+import com.ecom.model.ProductOrder;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +18,10 @@ public class CommonUtils {
     @Autowired
     private JavaMailSender mailSender;
 
+    // for resetting password
+
     public Boolean sendMail(String url, String recipientEmail) throws MessagingException, UnsupportedEncodingException {
+
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
@@ -38,5 +42,38 @@ public class CommonUtils {
     public String generateUrl(HttpServletRequest req) {
         String siteUrl = req.getRequestURL().toString();
         return siteUrl.replace(req.getServletPath(), "");
+    }
+
+    String msg = null;
+
+    public Boolean sendMailForOrder(ProductOrder order, String status) throws MessagingException, UnsupportedEncodingException {
+
+        msg = "<p>[[name]]</p><br><p>Order has been [[orderStatus]]</br>.</p"
+                + "<p>Product Details: </p>"
+                + "<p>Name: [[productName]]</p>"
+                + "<p>Category: [[category]]</p>"
+                + "<p>Quantity: [[quantity]]</p>"
+                + "<p>Price: [[price]]</p>"
+                + "<p>Payment Method: [[paymentMethod]]</p>";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom("test@gmail.com", "Shopping Cart");
+        helper.setTo(order.getOrderAddress().getEmail());
+
+        msg = msg.replace("[[name]]", order.getOrderAddress().getFirstName());
+        msg = msg.replace("[[orderStatus]]", status);
+        msg = msg.replace("[[productName]]", order.getProduct().getTitle());
+        msg = msg.replace("[[category]]", order.getProduct().getCategory());
+        msg = msg.replace("[[quantity]]", order.getQuantity().toString());
+        msg = msg.replace("[[price]]", order.getPrice().toString());
+        msg = msg.replace("[[paymentMethod]]", order.getPaymentType());
+
+        helper.setSubject("Product Order Status");
+        helper.setText(msg, true);
+        mailSender.send(message);
+
+        return true;
     }
 }

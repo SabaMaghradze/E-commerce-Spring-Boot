@@ -29,24 +29,28 @@ public class AuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
         String email = req.getParameter("username");
         User user = userRepo.findByEmail(email);
 
-        if (user.getIsEnabled()) {
-            if (user.getAccNonLocked()) {
-                if (user.getNumberOfFailedAttempts() < AppConstants.ATTEMPT_COUNT) {
-                    userService.increaseFailedAttempts(user);
-                    exception = new LockedException("Incorrect Credentials, Please Try Again");
+        if (user != null) {
+            if (user.getIsEnabled()) {
+                if (user.getAccNonLocked()) {
+                    if (user.getNumberOfFailedAttempts() < AppConstants.ATTEMPT_COUNT) {
+                        userService.increaseFailedAttempts(user);
+                        exception = new LockedException("Incorrect Credentials, Please Try Again");
+                    } else {
+                        userService.lockAccount(user);
+                        exception = new LockedException("Your account has been locked, failed attempt N.3");
+                    }
                 } else {
-                    userService.lockAccount(user);
-                    exception = new LockedException("Your account has been locked, failed attempt N.3");
+                    if (userService.unlockAcc(user)) {
+                        exception = new LockedException("Your account is unlocked, please try again.");
+                    } else {
+                        exception = new LockedException("Your account is locked, please try again later");
+                    }
                 }
             } else {
-                if (userService.unlockAcc(user)) {
-                    exception = new LockedException("Your account is unlocked, please try again.");
-                } else {
-                    exception = new LockedException("Your account is locked, please try again later");
-                }
+                exception = new LockedException("Your account is inactive");
             }
         } else {
-            exception = new LockedException("Your account is inactive");
+            exception = new LockedException("Wrong email, the user does not exist");
         }
         super.setDefaultFailureUrl("/signin?error");
         super.onAuthenticationFailure(req, res, exception);

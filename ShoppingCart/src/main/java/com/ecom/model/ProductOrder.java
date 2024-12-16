@@ -1,13 +1,12 @@
 package com.ecom.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Date;
 
 @NoArgsConstructor
@@ -22,13 +21,14 @@ public class ProductOrder {
     private int id;
 
     private String orderId;
-    private Date orderDate;
+    private LocalTime orderDate;
 
     @ManyToOne
     private Product product;
 
     private Double price;
-    private int quantity;
+
+    private Double quantity;
 
     @ManyToOne
     private User user;

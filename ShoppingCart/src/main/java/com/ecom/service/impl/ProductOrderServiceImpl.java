@@ -1,18 +1,21 @@
 package com.ecom.service.impl;
 
-import com.ecom.model.Cart;
-import com.ecom.model.OrderAddress;
-import com.ecom.model.OrderRequest;
-import com.ecom.model.ProductOrder;
+import com.ecom.model.*;
 import com.ecom.repository.CartRepo;
 import com.ecom.repository.ProductOrderRepo;
+import com.ecom.repository.UserRepo;
 import com.ecom.service.ProductOrderService;
+import com.ecom.service.UserService;
+import com.ecom.utils.CommonUtils;
 import com.ecom.utils.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,8 +27,14 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     @Autowired
     private CartRepo cartRepo;
 
+    @Autowired
+    private UserRepo userRepo;
+
+    @Autowired
+    private CommonUtils commonUtils;
+
     @Override
-    public void saveOrder(int userId, OrderRequest orderRequest) {
+    public void saveOrder(int userId, OrderRequest orderRequest) throws Exception {
 
         List<Cart> carts = cartRepo.findCartByUserId(userId);
 
@@ -34,7 +43,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             ProductOrder order = new ProductOrder();
 
             order.setOrderId(UUID.randomUUID().toString());
-            order.setOrderDate(new Date());
+            order.setOrderDate(LocalTime.now());
 
             order.setProduct(cart.getProduct());
             order.setPrice(cart.getProduct().getDiscountPrice());
@@ -58,9 +67,37 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
             order.setOrderAddress(orderAddress);
 
-            productOrderRepo.save(order);
+            ProductOrder saveOrder = productOrderRepo.save(order);
+
+            commonUtils.sendMailForOrder(saveOrder, saveOrder.getStatus());
         }
     }
+
+    @Override
+    public List<ProductOrder> getOrdersByUserId(int userId) {
+        List<ProductOrder> userOrders = productOrderRepo.findByUserId(userId);
+        return userOrders;
+    }
+
+    @Override
+    public ProductOrder updateOrderStatus(int orderId, String status) {
+
+        Optional<ProductOrder> order = productOrderRepo.findById(orderId);
+
+        if (!ObjectUtils.isEmpty(order)) {
+            ProductOrder orderItself = order.get();
+            orderItself.setStatus(status);
+            orderItself = productOrderRepo.save(orderItself);
+            return orderItself;
+        }
+        return null;
+    }
+
+    @Override
+    public List<ProductOrder> getAllOrders() {
+        return productOrderRepo.findAll();
+    }
+
 }
 
 

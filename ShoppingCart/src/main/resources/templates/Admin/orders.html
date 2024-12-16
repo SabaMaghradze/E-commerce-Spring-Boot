@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" th:replace="base::Layout(~{::section})">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<section>
+    <div class="container mt-5 p-5">
+        <div class="row">
+            <p class="text-center fs-3">All Orders</p>
+            <th:block th:if="${session.succMsg}">
+                <p class="text-success fw-bold text-center">[[${session.succMsg}]]</p>
+                <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
+            </th:block>
+            <th:block th:if="${session.errorMsg}">
+                <p class="text-danger fw-bold">[[${session.errorMsg}]]</p>
+                <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
+            </th:block>
+            <hr>
+            <div class="col-md-4 p-4">
+                <form>
+                    <div class="row">
+                        <div class="col">
+                            <input type="text" class="form-control" name="" placeholder="Enter order ID">
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-primary col">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-12 ps-4 pe-4">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col">Sl. No</th>
+                        <th>Details</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Product Details</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order, c : ${orders}">
+                        <th scope="row">[[${c.count}]]</th>
+                        <td>
+                            Name: [[${order.orderAddress.firstName+' '+order.orderAddress.lastName}]]<br>
+                            Email: [[${order.orderAddress.email}]]<br>
+                            Mobile Number: [[${order.orderAddress.mobileNumber}]]<br>
+                            Address: [[${order.orderAddress.address}]]<br>
+                            State: [[${order.orderAddress.state}]]<br>
+                            City: [[${order.orderAddress.city}]]<br>
+                        </td>
+                        <td>[[${order.orderDate}]]</td>
+                        <td>[[${order.product.title}]]</td>
+                        <td>[[${order.quantity} * ${order.price}]]</td>
+                        <td>[[${order.status}]]</td>
+                        <td>
+                            <form action="/admin/update-order-status" method="post">
+                                <div class="row">
+                                    <div class="col">
+                                        <select class="form-control" name="status">
+                                            <option value="1">In Progress</option>
+                                            <option value="2">Order Received</option>
+                                            <option value="3">Product Packed</option>
+                                            <option value="4">Out For Delivery</option>
+                                            <option value="5">Delivered</option>
+                                            <option value="6">CANCELLED</option>
+                                        </select>
+                                    </div>
+                                    <input th:value="${order.id}" name="id" type="hidden">
+                                    <div class="col">
+                                        <th:block th:if="${order.status == 'CANCELLED' || order.status == 'Delivered'}">
+                                            <button class="btn btn-primary btn-sm col disabled">Update</button>
+                                        </th:block>
+                                        <th:block th:unless="${order.status == 'CANCELLED' || order.status == 'Delivered'}">
+                                            <button class="btn btn-primary btn-sm">Update</button>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

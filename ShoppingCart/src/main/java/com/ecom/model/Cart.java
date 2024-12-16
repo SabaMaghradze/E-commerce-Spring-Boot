@@ -23,7 +23,7 @@ public class Cart {
     @ManyToOne
     private Product product;
 
-    private Integer quantity;
+    private Double quantity;
 
     @Transient
     private Double totalPrice;

@@ -2,9 +2,13 @@ package com.ecom.controller;
 
 import com.ecom.model.Category;
 import com.ecom.model.Product;
+import com.ecom.model.ProductOrder;
 import com.ecom.service.CategoryService;
+import com.ecom.service.ProductOrderService;
 import com.ecom.service.ProductService;
 import com.ecom.service.UserService;
+import com.ecom.utils.CommonUtils;
+import com.ecom.utils.OrderStatus;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -35,6 +39,12 @@ public class AdminController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private ProductOrderService productOrderService;
+
+    @Autowired
+    private CommonUtils commonUtils;
+
     @ModelAttribute
     public void getUserDetails(Principal principal, Model model) {
         if (principal != null) {
@@ -47,18 +57,18 @@ public class AdminController {
     @GetMapping("/category")
     public String category(Model model) {
         model.addAttribute("categories", categoryService.getAllCategories());
-        return "admin/category";
+        return "Admin/category";
     }
 
     @GetMapping("/loadAddProduct")
     public String loadAddProduct(Model model) {
         model.addAttribute("categories", categoryService.getAllCategories());
-        return "admin/add_product";
+        return "Admin/add_product";
     }
 
     @GetMapping("")
     public String index() {
-        return "admin/index";
+        return "Admin/index";
     }
 
     @PostMapping("/saveCategory")
@@ -107,7 +117,7 @@ public class AdminController {
     @GetMapping("/loadEditCategory/{id}")
     public String loadEditCategory(@PathVariable int id, Model model) {
         model.addAttribute("category", categoryService.getCategoryById(id));
-        return "admin/edit_category";
+        return "Admin/edit_category";
     }
 
     @PostMapping("/updateCategory")
@@ -172,7 +182,7 @@ public class AdminController {
     @GetMapping("/products")
     public String loadViewProduct(Model model) {
         model.addAttribute("products", productService.getAllProducts());
-        return "admin/products";
+        return "Admin/products";
     }
 
     @GetMapping("/deleteProduct/{id}")
@@ -192,7 +202,7 @@ public class AdminController {
     public String loadEditProduct(@PathVariable int id, Model model) {
         model.addAttribute("product", productService.getProductById(id));
         model.addAttribute("categories", categoryService.getAllCategories());
-        return "admin/edit_product";
+        return "Admin/edit_product";
     }
 
     @PostMapping("/updateProduct")
@@ -246,13 +256,12 @@ public class AdminController {
     @GetMapping("/users")
     public String loadUsers(Model model) {
         model.addAttribute("users", userService.getUserByRole("ROLE_USER"));
-        return "admin/users";
+        return "Admin/users";
     }
 
     @GetMapping("/updateStatus")
     public String updateUserAccountStatus(@RequestParam Boolean status, @RequestParam int id, HttpSession session) {
         Boolean bool = userService.updateAccountStatus(status, id);
-
         if (bool) {
             session.setAttribute("succMsg", "Account status updated");
         } else {
@@ -261,6 +270,39 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
+    @GetMapping("/orders")
+    public String loadOrdersPage(Model model) {
+        model.addAttribute("orders", productOrderService.getAllOrders());
+        return "Admin/orders";
+    }
+
+    @PostMapping("/update-order-status")
+    public String updateOrderStatus(@RequestParam int id, @RequestParam int status, HttpSession session) {
+
+        OrderStatus[] values = OrderStatus.values();
+        String statuss = null;
+
+        for (OrderStatus value : values) {
+            if (value.getId() == status) {
+                statuss = value.getName();
+            }
+        }
+
+        ProductOrder updateOrder = productOrderService.updateOrderStatus(id, statuss);
+
+        try {
+            commonUtils.sendMailForOrder(updateOrder, statuss);
+        } catch (Exception exc) {
+            exc.printStackTrace();
+        }
+
+        if (!ObjectUtils.isEmpty(updateOrder)) {
+            session.setAttribute("succMsg", "Status Updated");
+        } else {
+            session.setAttribute("errorMsg", "Failed to update status");
+        }
+        return "redirect:/admin/orders";
+    }
 }
 
 
