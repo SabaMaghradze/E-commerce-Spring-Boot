@@ -182,6 +182,7 @@ public class AdminController {
     @GetMapping("/products")
     public String loadViewProduct(Model model) {
         model.addAttribute("products", productService.getAllProducts());
+        model.addAttribute("searchMode", false);
         return "Admin/products";
     }
 
@@ -273,6 +274,7 @@ public class AdminController {
     @GetMapping("/orders")
     public String loadOrdersPage(Model model) {
         model.addAttribute("orders", productOrderService.getAllOrders());
+        model.addAttribute("searchMode", false);
         return "Admin/orders";
     }
 
@@ -302,6 +304,40 @@ public class AdminController {
             session.setAttribute("errorMsg", "Failed to update status");
         }
         return "redirect:/admin/orders";
+    }
+
+    @GetMapping("/search-order")
+    public String search(@RequestParam String orderId, Model model, HttpSession session) {
+
+        ProductOrder order = productOrderService.getOrderById(orderId.trim());
+
+        if (ObjectUtils.isEmpty(order)) {
+            session.setAttribute("errorMsg", "Wrong ID");
+            model.addAttribute("order", null);
+        } else {
+            model.addAttribute("order", order);
+        }
+
+        model.addAttribute("searchMode", true);
+
+        return "/admin/orders";
+    }
+
+    @GetMapping("/search-product")
+    public String searchProduct(@RequestParam int productId, Model model, HttpSession session) {
+
+        Product product = productService.getProductById(productId);
+
+        if (ObjectUtils.isEmpty(product)) {
+            session.setAttribute("errorMsg", "Wrong ID");
+            model.addAttribute("product", null);
+        } else {
+            model.addAttribute("product", product);
+        }
+
+        model.addAttribute("searchMode", true);
+
+        return "/admin/products";
     }
 }
 

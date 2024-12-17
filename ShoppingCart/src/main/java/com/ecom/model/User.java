@@ -1,14 +1,12 @@
 package com.ecom.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.File;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -30,6 +28,10 @@ public class User {
     private String state;
     private String pincode;
     private String password;
+
+    @Transient
+    private String confirmPassword;
+
     private String profileImage;
     private String role;
     private Boolean isEnabled;

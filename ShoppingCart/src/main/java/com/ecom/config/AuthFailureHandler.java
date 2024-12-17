@@ -24,7 +24,8 @@ public class AuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
     @Autowired
     private UserService userService;
 
-    public void onAuthenticationFailure(HttpServletRequest req, HttpServletResponse res, AuthenticationException exception) throws IOException, ServletException {
+    public void onAuthenticationFailure(HttpServletRequest req, HttpServletResponse res,
+                                        AuthenticationException exception) throws IOException, ServletException {
 
         String email = req.getParameter("username");
         User user = userRepo.findByEmail(email);

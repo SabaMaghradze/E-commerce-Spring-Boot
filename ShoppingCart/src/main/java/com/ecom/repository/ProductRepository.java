@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    public Boolean existsByTitle(String name);
-    public List<Product> findByCategory(String category);
+    Boolean existsByTitle(String name);
+    List<Product> findByCategory(String category);
+    List<Product> findByTitleContainingIgnoreCaseOrCategoryContainingIgnoreCase(String ch1, String ch2);
 }

@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -95,9 +96,16 @@ public class HomeController {
     }
 
     @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute User user, @RequestParam("profilePic") MultipartFile profilePic, HttpSession session) {
+    public String saveUser(@ModelAttribute User user, @RequestParam("profileImage") MultipartFile profileImage, HttpSession session) {
 
-        String imageName = profilePic.isEmpty() ? "default.jpg" : profilePic.getOriginalFilename();
+        System.out.println("User Data: " + user);
+
+        if (user == null) {
+            session.setAttribute("errorMsg", "Failed to register: User object is null");
+            return "redirect:/register";
+        }
+
+        String imageName = profileImage.isEmpty() ? "default.jpg" : profileImage.getOriginalFilename();
         user.setProfileImage(imageName);
 
         User saveUser = userService.saveUser(user);
@@ -105,11 +113,10 @@ public class HomeController {
         if (!ObjectUtils.isEmpty(saveUser)) {
             try {
                 File saveFolder = new ClassPathResource("static/img").getFile();
-                Path path = Paths.get(saveFolder.getAbsolutePath() + File.separator + "profile_img" + File.separator + profilePic.getOriginalFilename());
-                System.out.println(path);
-                Files.copy(profilePic.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+                Path path = Paths.get(saveFolder.getAbsolutePath() + File.separator + "profile_img" + File.separator + profileImage.getOriginalFilename());
+                Files.copy(profileImage.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException exc) {
-                System.out.println(exc);
+                System.out.println(exc + ": " + exc.getMessage());
             }
             session.setAttribute("succMsg", "Registration successful");
         } else {
@@ -182,6 +189,13 @@ public class HomeController {
             model.addAttribute("msg", "Password has been changed successfully");
             return "message";
         }
+    }
+
+    @GetMapping("/search")
+    public String search(String ch, Model model) {
+        model.addAttribute("activeProducts", productService.searchProduct(ch));
+        model.addAttribute("activeCategories", categoryService.getAllActiveCategories());
+        return "product";
     }
 }
 

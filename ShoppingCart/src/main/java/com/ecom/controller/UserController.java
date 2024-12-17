@@ -12,6 +12,7 @@ import com.ecom.utils.CommonUtils;
 import com.ecom.utils.OrderStatus;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -39,6 +40,9 @@ public class UserController {
 
     @Autowired
     private CommonUtils commonUtils;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @ModelAttribute
     public void getUserDetails(Principal principal, Model model) {
@@ -166,6 +170,35 @@ public class UserController {
             session.setAttribute("errorMsg", "Failed to update user");
         } else {
             session.setAttribute("succMsg", "User has been successfully updated");
+        }
+        return "redirect:/user/profile";
+    }
+
+    @PostMapping("/change-password")
+    public String resetPassword(@RequestParam String currentPassword, @RequestParam String newPassword,
+                                @RequestParam String confirmPassword, Principal principal, HttpSession session) {
+
+        User user = userService.getUserByEmail(principal.getName());
+
+        if (!ObjectUtils.isEmpty(user)) {
+            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+                session.setAttribute("errorMsg", "That is not your current password");
+                return "redirect:/user/profile";
+            } else {
+                if (newPassword.equals(confirmPassword)) {
+                    user.setPassword(passwordEncoder.encode(newPassword));
+                    User updateUser = userService.updateUser(user);
+                    if (ObjectUtils.isEmpty(updateUser)) {
+                        session.setAttribute("errorMsg", "Something went wrong, internal server error");
+                    } else {
+                        session.setAttribute("succMsg", "Password has been successfully updated");
+                    }
+                } else {
+                    session.setAttribute("errorMsg", "Passwords do not match");
+                }
+            }
+        } else {
+            session.setAttribute("erroMsg", "You are not authenticated, please log in");
         }
         return "redirect:/user/profile";
     }

@@ -7,21 +7,33 @@
 <body>
 <section>
     <div class="container mt-5 p-5">
-        <div class="card">
-            <div class="card-header text-center">
-                <p class="fs-4">View Product</p>
-                <th:block th:if="${session.succMsg}">
-                    <p class="text-success fw-bold">[[${session.succMsg}]]</p>
-                    <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
-                </th:block>
-                <th:block th:if="${session.errorMsg}">
-                    <p class="text-danger fw-bold">[[${session.errorMsg}]]</p>
-                    <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
-                </th:block>
+        <div class="row">
+            <p class="text-center fs-3">Products</p>
+            <th:block th:if="${session.succMsg}">
+                <p class="text-success fw-bold text-center">[[${session.succMsg}]]</p>
+                <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
+            </th:block>
+            <th:block th:if="${session.errorMsg}">
+                <p class="text-danger fw-bold">[[${session.errorMsg}]]</p>
+                <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
+            </th:block>
+            <hr>
+            <div class="col-md-4 p-4">
+                <form action="/admin/search-product" method="get">
+                    <div class="row">
+                        <div class="col">
+                            <input type="text" class="form-control" name="productId" placeholder="Enter product ID">
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-primary col">Search</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="card-body">
-                <table class="table">
-                    <thead>
+            <div class="p-3 card-sh">
+
+                <table class="table table-borderless p-2">
+                    <thead class="table-light">
                     <tr>
                         <th scope="col">Serial Number</th>
                         <th scope="col">Image</th>
@@ -36,25 +48,53 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="p, c : ${products}">
-                        <th scope="row">[[${c.count}]]</th>
-                        <td>
-                            <img th:src="@{'/img/product_img/'+${p.image}}" width="70px" height="70px">
-                        </td>
-                        <td>[[${p.title}]]</td>
-                        <td>[[${p.category}]]</td>
-                        <td>[[${p.price}]]</td>
-                        <td>[[${p.discount}]]</td>
-                        <td>[[${p.discountPrice}]]</td>
-                        <td>[[${p.isActive}]]</td>
-                        <td>[[${p.stock}]]</td>
-                        <td>
-                            <a th:href="@{'/admin/loadEditProduct/'+${p.id}}" class="btn btn-sm btn-primary">
-                                <i class="fa-solid fa-pen-to-square fa-1x"></i>Edit</a>
-                            <a th:href="@{'/admin/deleteProduct/'+${p.id}}" class="btn btn-sm btn-danger">
-                                <i class="fa-solid fa-trash fa-1x"></i>Delete</a>
-                        </td>
-                    </tr>
+                    <th:block th:if="${searchMode}">
+                        <th:block th:if="${product != null}">
+                            <tr>
+                                <th scope="row">[[${product.id}]]</th>
+                                <td>
+                                    <img th:src="@{'/img/product_img/'+${product.image}}" width="70px" height="70px">
+                                </td>
+                                <td>[[${product.title}]]</td>
+                                <td>[[${product.category}]]</td>
+                                <td>[[${product.price}]]</td>
+                                <td>[[${product.discount}]]</td>
+                                <td>[[${product.discountPrice}]]</td>
+                                <td>[[${product.isActive}]]</td>
+                                <td>[[${product.stock}]]</td>
+                                <td>
+                                    <a th:href="@{'/admin/loadEditProduct/'+${product.id}}" class="btn btn-sm btn-primary">
+                                        <i class="fa-solid fa-pen-to-square fa-1x"></i>Edit</a>
+                                    <a th:href="@{'/admin/deleteProduct/'+${product.id}}" class="btn btn-sm btn-danger">
+                                        <i class="fa-solid fa-trash fa-1x"></i>Delete</a>
+                                </td>
+                            </tr>
+                        </th:block>
+                        <th:block th:unless="${product != null}">
+                            <p class="fs-3 text-center text-danger">[[${errorMsg}]]</p>
+                        </th:block>
+                    </th:block>
+                    <th:block th:unless="${searchMode}">
+                        <tr th:each="p, c : ${products}">
+                            <th scope="row">[[${c.count}]]</th>
+                            <td>
+                                <img th:src="@{'/img/product_img/'+${p.image}}" width="70px" height="70px">
+                            </td>
+                            <td>[[${p.title}]]</td>
+                            <td>[[${p.category}]]</td>
+                            <td>[[${p.price}]]</td>
+                            <td>[[${p.discount}]]</td>
+                            <td>[[${p.discountPrice}]]</td>
+                            <td>[[${p.isActive}]]</td>
+                            <td>[[${p.stock}]]</td>
+                            <td>
+                                <a th:href="@{'/admin/loadEditProduct/'+${p.id}}" class="btn btn-sm btn-primary">
+                                    <i class="fa-solid fa-pen-to-square fa-1x"></i>Edit</a>
+                                <a th:href="@{'/admin/deleteProduct/'+${p.id}}" class="btn btn-sm btn-danger">
+                                    <i class="fa-solid fa-trash fa-1x"></i>Delete</a>
+                            </td>
+                        </tr>
+                    </th:block>
                     </tbody>
                 </table>
             </div>
