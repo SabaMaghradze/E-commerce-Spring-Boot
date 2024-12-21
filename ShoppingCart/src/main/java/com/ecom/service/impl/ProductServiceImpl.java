@@ -4,6 +4,9 @@ import com.ecom.model.Product;
 import com.ecom.repository.ProductRepository;
 import com.ecom.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -52,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = null;
 
         if (ObjectUtils.isEmpty(category)) {
-            products = productRepo.findAll();
+            products = productRepo.findByIsActiveTrue();
         } else {
             products = productRepo.findByCategory(category);
         }
@@ -68,6 +71,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> searchProduct(String ch) {
         return productRepo.findByTitleContainingIgnoreCaseOrCategoryContainingIgnoreCase(ch, ch);
+    }
+
+    @Override
+    public Page<Product> getAllActiveProductsPagination(Integer pageN, Integer pageSize, String category) {
+
+        Pageable pageable = PageRequest.of(pageN, pageSize);
+        Page<Product> pageProducts = null;
+
+        if (ObjectUtils.isEmpty(category)) {
+            pageProducts = productRepo.findByIsActiveTrue(pageable);
+        } else {
+            pageProducts = productRepo.findByCategory(pageable, category);
+        }
+        return pageProducts;
     }
 }
 

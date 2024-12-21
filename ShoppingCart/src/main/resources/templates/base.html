@@ -64,22 +64,39 @@
                             <a class="nav-link active" aria-current="page" href="/user/cart"><i
                                     class="fa-solid fa-cart-shopping"></i> Cart ([[${cartCount}]])</a>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="fa-solid fa-user"></i> [[${user.name}]]
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/user/profile">Profile</a></li>
+                                <li><a class="dropdown-item" href="/user/orders">My Orders</a></li>
+                                <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                            </ul>
+                        </li>
                     </th:block>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown"
-                           aria-expanded="false">
-                            <i class="fa-solid fa-user"></i> [[${user.name}]]
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/user/profile">Profile</a></li>
-                            <li><a class="dropdown-item" href="/user/orders">My Orders</a></li>
-                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                        </ul>
-                    </li>
+                    <th:block th:if="${user.role == 'ROLE_ADMIN'}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="fa-solid fa-user"></i> [[${user.name}]]
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/admin/profile">Profile</a></li>
+                                <li><a class="dropdown-item" href="/admin/">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                            </ul>
+                        </li>
+                    </th:block>
                 </th:block>
+
             </ul>
         </div>
     </div>

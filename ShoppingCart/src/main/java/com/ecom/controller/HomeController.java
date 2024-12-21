@@ -1,5 +1,6 @@
 package com.ecom.controller;
 
+import com.ecom.model.Category;
 import com.ecom.model.Product;
 import com.ecom.model.User;
 import com.ecom.service.CartService;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +21,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.naming.Name;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -81,10 +84,27 @@ public class HomeController {
     }
 
     @GetMapping("/products")
-    public String products(Model model, @RequestParam(value = "category", defaultValue = "") String category) {
-        model.addAttribute("activeCategories", categoryService.getAllActiveCategories());
-        model.addAttribute("activeProducts", productService.getActiveProducts(category));
+    public String products(Model model, @RequestParam(value = "category", defaultValue = "") String category,
+                           @RequestParam(name = "pageN", defaultValue = "0") Integer pageN,
+                           @RequestParam(name = "pageSize", defaultValue = "2") Integer pageSize) {
+
         model.addAttribute("paramValue", category);
+
+        List<Category> categories = categoryService.getAllActiveCategories();
+        model.addAttribute("activeCategories", categories);
+
+        Page<Product> page = productService.getAllActiveProductsPagination(pageN, pageSize, category);
+        List<Product> products = page.getContent();
+        model.addAttribute("activeProducts", products);
+        model.addAttribute("productsSize", products.size());
+
+        model.addAttribute("pageN", page.getNumber());
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("totalElements", page.getTotalElements());
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("isFirst", page.isFirst());
+        model.addAttribute("isLast", page.isLast());
+
         return "product";
     }
 
@@ -155,6 +175,7 @@ public class HomeController {
 
     @GetMapping("/reset-password")
     public String resetPasswordPage(@RequestParam String token, Model model) {
+
         User user = userService.getUserByResetToken(token);
 
         if (user == null) {
@@ -193,8 +214,13 @@ public class HomeController {
 
     @GetMapping("/search")
     public String search(String ch, Model model) {
-        model.addAttribute("activeProducts", productService.searchProduct(ch));
-        model.addAttribute("activeCategories", categoryService.getAllActiveCategories());
+
+        List<Product> products = productService.searchProduct(ch);
+        model.addAttribute("activeProducts", products);
+
+        List<Category> categories = categoryService.getAllActiveCategories();
+        model.addAttribute("activeCategories", categories);
+
         return "product";
     }
 }

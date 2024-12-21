@@ -54,6 +54,11 @@ public class AdminController {
         model.addAttribute("categories", categoryService.getAllActiveCategories());
     }
 
+    @GetMapping("/profile")
+    public String loadProfilePage() {
+        return "/user/profile";
+    }
+
     @GetMapping("/category")
     public String category(Model model) {
         model.addAttribute("categories", categoryService.getAllCategories());
