@@ -44,15 +44,6 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @ModelAttribute
-    public void getUserDetails(Principal principal, Model model) {
-        if (principal != null) {
-            String email = principal.getName();
-            model.addAttribute("user", userService.getUserByEmail(email));
-        }
-        model.addAttribute("categories", categoryService.getAllActiveCategories());
-    }
-
     public String home() {
         return "User/home";
     }
@@ -71,7 +62,7 @@ public class UserController {
 
     @GetMapping("/cart")
     public String loadCartPage(Principal principal, Model model) {
-        User user = getLoggedInUserDetails(principal);
+        User user = commonUtils.getLoggedInUserDetails(principal);
         List<Cart> carts = cartService.getCartsByUser(user.getId());
         model.addAttribute("carts", carts);
         if (!carts.isEmpty()) {
@@ -82,10 +73,18 @@ public class UserController {
         return "/user/cart";
     }
 
-    private User getLoggedInUserDetails(Principal principal) {
-        String email = principal.getName();
-        User user = userService.getUserByEmail(email);
-        return user;
+    @ModelAttribute
+    public void getUserDetails(Principal principal, Model model) {
+        if (principal != null) {
+            String email = principal.getName();
+            User user = userService.getUserByEmail(email);
+            model.addAttribute("user", user);
+            int cartCount = cartService.getCount(user.getId());
+            model.addAttribute("cartCount", cartCount);
+        } else {
+            model.addAttribute("user", null);
+        }
+        model.addAttribute("categories", categoryService.getAllActiveCategories());
     }
 
     @GetMapping("/quantityUpdate")
@@ -96,7 +95,7 @@ public class UserController {
 
     @GetMapping("/order")
     public String orderPage(Model model, Principal principal) {
-        User user = getLoggedInUserDetails(principal);
+        User user = commonUtils.getLoggedInUserDetails(principal);
         List<Cart> carts = cartService.getCartsByUser(user.getId());
         model.addAttribute("carts", carts);
         if (!carts.isEmpty()) {

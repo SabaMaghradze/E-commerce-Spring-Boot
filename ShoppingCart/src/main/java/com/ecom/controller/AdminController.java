@@ -13,6 +13,7 @@ import com.ecom.utils.OrderStatus;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -46,8 +47,11 @@ public class AdminController {
     @Autowired
     private CommonUtils commonUtils;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @ModelAttribute
-    public void getUserDetails(Principal principal, Model model) {
+    private void getUserDetails(Principal principal, Model model) {
         if (principal != null) {
             String email = principal.getName();
             model.addAttribute("user", userService.getUserByEmail(email));
@@ -57,7 +61,7 @@ public class AdminController {
 
     @GetMapping("/profile")
     public String loadProfilePage() {
-        return "/user/profile";
+        return "/admin/profile";
     }
 
     @GetMapping("/categories")
@@ -381,7 +385,47 @@ public class AdminController {
         return "redirect:/admin/add-admin";
     }
 
+    @PostMapping("/update-profile")
+    public String updateUserProfile(@ModelAttribute User user, @RequestParam MultipartFile image, HttpSession session) {
 
+        User updateUser = userService.updateUserProfile(user, image);
+
+        if (ObjectUtils.isEmpty(updateUser)) {
+            session.setAttribute("errorMsg", "Failed to update user");
+        } else {
+            session.setAttribute("succMsg", "User has been successfully updated");
+        }
+        return "redirect:/admin/profile";
+    }
+
+    @PostMapping("/change-password")
+    public String resetPassword(@RequestParam String currentPassword, @RequestParam String newPassword,
+                                @RequestParam String confirmPassword, Principal principal, HttpSession session) {
+
+        User user = commonUtils.getLoggedInUserDetails(principal);
+
+        if (!ObjectUtils.isEmpty(user)) {
+            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+                session.setAttribute("errorMsg", "That is not your current password");
+                return "redirect:/admin/profile";
+            } else {
+                if (newPassword.equals(confirmPassword)) {
+                    user.setPassword(passwordEncoder.encode(newPassword));
+                    User updateUser = userService.updateUser(user);
+                    if (ObjectUtils.isEmpty(updateUser)) {
+                        session.setAttribute("errorMsg", "Something went wrong, internal server error");
+                    } else {
+                        session.setAttribute("succMsg", "Password has been successfully updated");
+                    }
+                } else {
+                    session.setAttribute("errorMsg", "Passwords do not match");
+                }
+            }
+        } else {
+            session.setAttribute("erroMsg", "You are not authenticated, please log in");
+        }
+        return "redirect:/admin/profile";
+    }
 }
 
 

@@ -1,6 +1,8 @@
 package com.ecom.utils;
 
 import com.ecom.model.ProductOrder;
+import com.ecom.model.User;
+import com.ecom.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,14 +11,20 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.io.UnsupportedEncodingException;
+import java.security.Principal;
 
 @Component
 public class CommonUtils {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private UserService userService;
 
     // for resetting password
 
@@ -75,5 +83,11 @@ public class CommonUtils {
         mailSender.send(message);
 
         return true;
+    }
+
+    public User getLoggedInUserDetails(Principal principal) {
+        String email = principal.getName();
+        User user = userService.getUserByEmail(email);
+        return user;
     }
 }
