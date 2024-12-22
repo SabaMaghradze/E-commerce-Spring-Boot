@@ -6,17 +6,32 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface UserService {
-    public User saveUser(User user);
-    public User getUserByEmail(String email);
-    public List<User> getAllUsers();
-    public List<User> getUserByRole(String role);
-    public Boolean updateAccountStatus(Boolean status, int id);
-    public void increaseFailedAttempts(User user);
-    public void lockAccount(User user);
-    public Boolean unlockAcc(User user);
-    public void resetAttempt(int userId);
-    public void updateResetToken(String email, String resetToken);
-    public User getUserByResetToken(String token);
-    public User updateUser(User user);
-    public User updateUserProfile(User user, MultipartFile image);
+
+    User saveUser(User user);
+
+    User getUserByEmail(String email);
+
+    List<User> getAllUsers();
+
+    List<User> getUserByRole(String role);
+
+    Boolean updateAccountStatus(Boolean status, int id);
+
+    void increaseFailedAttempts(User user);
+
+    void lockAccount(User user);
+
+    Boolean unlockAcc(User user);
+
+    void resetAttempt(int userId);
+
+    void updateResetToken(String email, String resetToken);
+
+    User getUserByResetToken(String token);
+
+    User updateUser(User user);
+
+    User updateUserProfile(User user, MultipartFile image);
+
+    User saveAdmin(User user);
 }

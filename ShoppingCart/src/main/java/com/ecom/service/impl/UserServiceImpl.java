@@ -150,4 +150,19 @@ public class UserServiceImpl implements UserService {
         }
         return userExists;
     }
+
+    @Override
+    public User saveAdmin(User user) {
+        user.setRole("ROLE_ADMIN");
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setIsEnabled(true);
+        user.setAccNonLocked(true);
+        user.setNumberOfFailedAttempts(0);
+        return userRepo.save(user);
+    }
 }
+
+
+
+
+

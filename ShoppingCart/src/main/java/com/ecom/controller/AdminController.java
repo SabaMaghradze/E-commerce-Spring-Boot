@@ -3,6 +3,7 @@ package com.ecom.controller;
 import com.ecom.model.Category;
 import com.ecom.model.Product;
 import com.ecom.model.ProductOrder;
+import com.ecom.model.User;
 import com.ecom.service.CategoryService;
 import com.ecom.service.ProductOrderService;
 import com.ecom.service.ProductService;
@@ -59,9 +60,9 @@ public class AdminController {
         return "/user/profile";
     }
 
-    @GetMapping("/category")
+    @GetMapping("/categories")
     public String category(Model model) {
-        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("categories", categoryService.getAllActiveCategories());
         return "Admin/category";
     }
 
@@ -344,6 +345,43 @@ public class AdminController {
 
         return "/admin/products";
     }
+
+    @GetMapping("/add-admin")
+    public String loadAddAdminPage() {
+        return "/admin/add_admin";
+    }
+
+    @PostMapping("/saveAdmin")
+    public String saveAdmin(@ModelAttribute User user, @RequestParam("profileImage") MultipartFile profileImage, HttpSession session) {
+
+        System.out.println("User Data: " + user);
+
+        if (user == null) {
+            session.setAttribute("errorMsg", "Failed to register: User object is null");
+            return "redirect:/register";
+        }
+
+        String imageName = profileImage.isEmpty() ? "default.jpg" : profileImage.getOriginalFilename();
+        user.setProfileImage(imageName);
+
+        User saveUser = userService.saveAdmin(user);
+
+        if (!ObjectUtils.isEmpty(saveUser)) {
+            try {
+                File saveFolder = new ClassPathResource("static/img").getFile();
+                Path path = Paths.get(saveFolder.getAbsolutePath() + File.separator + "profile_img" + File.separator + profileImage.getOriginalFilename());
+                Files.copy(profileImage.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException exc) {
+                System.out.println(exc + ": " + exc.getMessage());
+            }
+            session.setAttribute("succMsg", "Registration successful");
+        } else {
+            session.setAttribute("errorMsg", "Failed to register: internal server error");
+        }
+        return "redirect:/admin/add-admin";
+    }
+
+
 }
 
 
