@@ -55,7 +55,18 @@ public class HomeController {
     private CartService cartService;
 
     @GetMapping("")
-    public String index() {
+    public String index(Model model) {
+
+        List<Category> allActiveCategories = categoryService.getAllActiveCategories().stream()
+                .limit(6)
+                .toList();
+        List<Product> allActiveProducts = productService.getActiveProducts("").stream()
+                .limit(8)
+                .toList();
+
+        model.addAttribute("categories", allActiveCategories);
+        model.addAttribute("products", allActiveProducts);
+
         return "index";
     }
 
@@ -86,7 +97,7 @@ public class HomeController {
     @GetMapping("/products")
     public String products(Model model, @RequestParam(value = "category", defaultValue = "") String category,
                            @RequestParam(name = "pageN", defaultValue = "0") Integer pageN,
-                           @RequestParam(name = "pageSize", defaultValue = "2") Integer pageSize) {
+                           @RequestParam(name = "pageSize", defaultValue = "9") Integer pageSize) {
 
         model.addAttribute("paramValue", category);
 
