@@ -7,8 +7,11 @@ import java.util.List;
 
 
 public interface CartService {
-    public Cart saveCart(Integer productId, Integer userId);
-    public List<Cart> getCartsByUser(Integer userId);
-    public int getCount(int userId);
-    public void updateQuantity(String symbol, int cartId);
+    Cart saveCart(Integer productId, Integer userId);
+
+    List<Cart> getCartsByUser(Integer userId);
+
+    int getCount(int userId);
+
+    void updateQuantity(String symbol, int cartId);
 }
