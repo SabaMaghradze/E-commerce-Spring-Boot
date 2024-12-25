@@ -108,7 +108,7 @@ public class AdminController {
                 session.setAttribute("succMsg:", "Category has been saved successfully");
             }
         }
-        return "redirect:/admin/category";
+        return "redirect:/admin/categories";
     }
 
     @GetMapping("deleteCategory/{id}")
@@ -121,7 +121,7 @@ public class AdminController {
         } else {
             session.setAttribute("errorMsg", "Failed to delete category");
         }
-        return "redirect:/admin/category";
+        return "redirect:/admin/categories";
     }
 
     @GetMapping("/loadEditCategory/{id}")
@@ -159,7 +159,14 @@ public class AdminController {
         } else {
             session.setAttribute("errorMsg", "Something went wrong, internal server error");
         }
-        return "redirect:/admin/category";
+        return "redirect:/admin/categories";
+    }
+
+    @GetMapping("/products")
+    public String loadViewProduct(Model model) {
+        model.addAttribute("products", productService.getAllProducts());
+        model.addAttribute("searchMode", false);
+        return "Admin/products";
     }
 
     @PostMapping("/saveProduct")
@@ -168,8 +175,14 @@ public class AdminController {
         String imageName = image.isEmpty() ? "default.jpg" : image.getOriginalFilename();
 
         product.setImage(imageName);
-        product.setDiscount(0);
-        product.setDiscountPrice(product.getPrice());
+
+        if (product.getDiscount() > 0) {
+            Double discount = product.getPrice() * (product.getDiscount() / 100.00);
+            Double discountPrice = product.getPrice() - discount;
+            product.setDiscountPrice(discountPrice);
+        } else {
+            product.setDiscountPrice(product.getPrice());
+        }
 
         Product saveProduct = productService.saveProduct(product);
 
@@ -189,12 +202,6 @@ public class AdminController {
         return "redirect:/admin/loadAddProduct";
     }
 
-    @GetMapping("/products")
-    public String loadViewProduct(Model model) {
-        model.addAttribute("products", productService.getAllProducts());
-        model.addAttribute("searchMode", false);
-        return "Admin/products";
-    }
 
     @GetMapping("/deleteProduct/{id}")
     public String deleteProduct(@PathVariable int id, HttpSession session) {

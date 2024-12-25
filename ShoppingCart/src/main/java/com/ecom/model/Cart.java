@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.NumberFormat;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,9 +27,11 @@ public class Cart {
     private Double quantity;
 
     @Transient
+    @NumberFormat(pattern = "#,###.##")
     private Double totalPrice;
 
     @Transient
+    @NumberFormat(pattern = "#,###.##")
     private Double netPrice;
 }
 

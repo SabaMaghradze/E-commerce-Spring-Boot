@@ -29,13 +29,13 @@
                         <div class="list-group">
                             <p class="fs-5">Category</p>
                             <a href="/products"
-                               th:classappend="${paramValue} == '' ? 'active' : ''"
-                               class="list-group-item list-group-item-action active"
+                               th:classappend="${paramValue.trim().isEmpty() ? 'active' : ''}"
+                               class="list-group-item list-group-item-action"
                                aria-current="true">
                                 All
                             </a>
                             <a th:each="cat:${activeCategories}" th:href="@{'/products?category='+${cat.name}}"
-                               th:classappend="${paramValue} == cat.name ? 'active' : ''"
+                               th:classappend="${paramValue.trim().toLowerCase() == cat.name.trim().toLowerCase() ? 'active' : ''}"
                                class="list-group-item list-group-item-action">
                                 [[${cat.name}]]
                             </a>
@@ -48,7 +48,7 @@
                     <div class="card-body">
                         <p class="fs-3 text-center">Products</p>
                         <div class="row">
-                            <th:block th:if="${productsSize > 0}">
+                            <th:block th:if="${activeProducts.size() > 0}">
                                 <div class="col-md-3" th:each="prod:${activeProducts}">
                                     <div class="card">
                                         <div class="card-body">
@@ -57,11 +57,14 @@
                                             <p class="fs-5 text-center">[[${prod.title}]]</p>
                                             <div class="row text-center">
                                                 <p class="fs-6 fw-bold">
-                                                    <span>[[${prod.discountPrice}]]</span>
-                                                    <span class="text-decoration-line-through text-secondary">[[${prod.price}]]</span>
-                                                    <span class="fs-6 text-success">
-                                                [[${prod.discount}]]% off
-                                            </span>
+                                                    <th:block th:if="${prod.discount} > 0">
+                                                        <span>[[${prod.discountPrice}]]$</span>
+                                                        <span class="text-decoration-line-through text-secondary">[[${prod.price}]]$</span>
+                                                        <span class="fs-6 text-success">[[${prod.discount}]]% off</span>
+                                                    </th:block>
+                                                    <th:block th:unless="${prod.discount} > 0">
+                                                        <span class="fs-6 text-success">[[${prod.price}]]$</span>
+                                                    </th:block>
                                                 </p>
                                                 <a th:href="@{'/product/'+${prod.id}}"
                                                    class="btn btn-primary col-md-6 offset-md-3">View
@@ -71,7 +74,7 @@
                                     </div>
                                 </div>
                             </th:block>
-                            <th:block th:unless="${productsSize > 0}">
+                            <th:block th:unless="${activeProducts.size() > 0}">
                                 <p class="fs-4 text-center mt-4 text-danger">Products not available</p>
                             </th:block>
                         </div>
@@ -87,7 +90,8 @@
                             <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <li class="page-item">
-                                        <a class="page-link" th:href="@{'/products?pageN='+${pageN - 1}}"
+                                        <a class="page-link"
+                                           th:href="@{'/products?pageN='+(${pageN - 1}) + '&category=' + ${paramValue}}"
                                            aria-label="Previous" th:classappend="${isFirst} ? 'disabled':''">
                                             <span aria-hidden="true">&laquo</span>
                                         </a>
@@ -95,12 +99,12 @@
                                     <li th:each="i:${#numbers.sequence(1, totalPages)}" class="page-item"
                                         th:classappend="${pageN + 1 == i} ? 'active':''"
                                     >
-                                        <a class="page-link" th:href="@{'/products?pageN='+${i - 1}}">
+                                        <a class="page-link" th:href="@{'/products?pageN='+(${i - 1}) + '&category=' + ${paramValue}}">
                                             [[${i}]]
                                         </a>
                                     </li>
                                     <li class="page-item">
-                                        <a class="page-link" th:href="@{'/products?pageN='+${pageN + 1}}"
+                                        <a class="page-link" th:href="@{'/products?pageN='+(${pageN + 1}) + '&category=' + ${paramValue}}"
                                            aria-label="Next" th:classappend="${isLast} ? 'disabled':''">
                                             <span aria-hidden="true">&raquo</span>
                                         </a>

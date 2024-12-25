@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.NumberFormat;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,10 +25,17 @@ public class Product {
     private String description;
 
     private String category;
+
+    @NumberFormat(pattern = "#,###.##")
     private Double price;
+
     private int stock;
+
     private int discount;
+
+    @NumberFormat(pattern = "#,###.##")
     private Double discountPrice;
+
     private String image;
     private Boolean isActive;
 }
