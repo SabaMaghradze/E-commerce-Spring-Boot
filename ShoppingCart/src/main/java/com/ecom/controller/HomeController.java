@@ -126,31 +126,33 @@ public class HomeController {
     }
 
     @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute User user, @RequestParam("profileImage") MultipartFile profileImage, HttpSession session) {
+    public String saveUser(@ModelAttribute User user, @RequestParam("profileImage")
+    MultipartFile profileImage, HttpSession session) throws IOException {
 
-        System.out.println("User Data: " + user);
+        Boolean emailExists = userService.emailExists(user.getEmail());
 
-        if (user == null) {
-            session.setAttribute("errorMsg", "Failed to register: User object is null");
-            return "redirect:/register";
-        }
-
-        String imageName = profileImage.isEmpty() ? "default.jpg" : profileImage.getOriginalFilename();
-        user.setProfileImage(imageName);
-
-        User saveUser = userService.saveUser(user);
-
-        if (!ObjectUtils.isEmpty(saveUser)) {
-            try {
-                File saveFolder = new ClassPathResource("static/img").getFile();
-                Path path = Paths.get(saveFolder.getAbsolutePath() + File.separator + "profile_img" + File.separator + profileImage.getOriginalFilename());
-                Files.copy(profileImage.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException exc) {
-                System.out.println(exc + ": " + exc.getMessage());
-            }
-            session.setAttribute("succMsg", "Registration successful");
+        if (emailExists) {
+            session.setAttribute("errorMsg", "Email already in use");
         } else {
-            session.setAttribute("errorMsg", "Failed to register: internal server error");
+            String imageName = profileImage.isEmpty() ? "default.jpg" : profileImage.getOriginalFilename();
+            user.setProfileImage(imageName);
+
+            User saveUser = userService.saveUser(user);
+
+            if (!ObjectUtils.isEmpty(saveUser)) {
+                if (!profileImage.isEmpty()) {
+                    try {
+                        File saveFolder = new ClassPathResource("static/img").getFile();
+                        Path path = Paths.get(saveFolder.getAbsolutePath() + File.separator + "profile_img" + File.separator + profileImage.getOriginalFilename());
+                        Files.copy(profileImage.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException exc) {
+                        System.out.println(exc + ": " + exc.getMessage());
+                    }
+                }
+                session.setAttribute("succMsg", "Registration successful");
+            } else {
+                session.setAttribute("errorMsg", "Failed to register: internal server error");
+            }
         }
         return "redirect:/register";
     }

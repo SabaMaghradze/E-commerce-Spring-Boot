@@ -83,7 +83,7 @@ $(function () {
             confirmPassword: {
                 required: 'Required field',
                 space: 'Spaces are not allowed',
-                equalTo: 'password mismatch'
+                equalTo: 'Does not match with password you provided'
             },
             address: {
                 required: 'Required field',

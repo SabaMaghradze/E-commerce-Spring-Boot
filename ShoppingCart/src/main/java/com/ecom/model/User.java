@@ -27,10 +27,6 @@ public class User {
     private String state;
     private String pincode;
     private String password;
-
-    @Transient
-    private String confirmPassword;
-
     private String profileImage;
     private String role;
     private Boolean isEnabled;

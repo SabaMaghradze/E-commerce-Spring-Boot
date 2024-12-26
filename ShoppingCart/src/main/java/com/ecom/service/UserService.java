@@ -11,6 +11,8 @@ public interface UserService {
 
     User getUserByEmail(String email);
 
+    Boolean emailExists(String email);
+
     List<User> getAllUsers();
 
     List<User> getUserByRole(String role);
