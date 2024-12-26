@@ -100,7 +100,6 @@ public class AdminController {
                 try {
                     File saveFolder = new ClassPathResource("static/img").getFile();
                     Path path = Paths.get(saveFolder.getAbsolutePath() + File.separator + "category_img" + File.separator + file.getOriginalFilename());
-                    System.out.println(path);
                     Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException exc) {
                     System.out.println(exc);
