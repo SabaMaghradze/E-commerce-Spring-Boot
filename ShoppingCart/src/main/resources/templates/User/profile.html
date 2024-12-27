@@ -11,28 +11,30 @@
             <div class="col-md-10 offset-md-1">
                 <p class="fs-3 text-center">My Profile</p>
                 <th:block th:if="${session.succMsg}">
-                    <p class="text-success fw-bold">[[${session.succMsg}]]</p>
+                    <p class="text-success fw-bold text-center">[[${session.succMsg}]]</p>
                     <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
                 </th:block>
                 <th:block th:if="${session.errorMsg}">
-                    <p class="text-danger fw-bold">[[${session.errorMsg}]]</p>
+                    <p class="text-danger fw-bold text-center">[[${session.errorMsg}]]</p>
                     <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
                 </th:block>
                 <div class="text-center">
-                    <img src="@{'../img/profile_img/'+${user.profileImage}}" class="border p-2"
+                    <img th:src="@{'/img/profile_img/'+${user.profileImage}}" class="border p-2"
                          style="width: 110px; height: 110px; border-radius: 50%;">
                 </div>
                 <div class="col-md-6 offset-md-3">
                     <table class="table table-borderless">
                         <tbody>
-                        <form action="/user/update-profile" method="post" enctype="multipart/form-data">
+                        <form action="/user/update-profile" id="#resetPassword"
+                              method="post" enctype="multipart/form-data" novalidate>
                             <tr>
                                 <th scope="row">Name</th>
                                 <td><input type="text" name="name" class="form-control" th:value="${user.name}"></td>
                             </tr>
                             <tr>
                                 <th scope="row">Mobile Number</th>
-                                <td><input type="text" name="mobileNumber" class="form-control" th:value="${user.mobileNumber}"></td>
+                                <td><input type="text" name="mobileNumber" class="form-control"
+                                           th:value="${user.mobileNumber}"></td>
                             </tr>
                             <tr>
                                 <th scope="row">Email</th>
@@ -40,7 +42,8 @@
                             </tr>
                             <tr>
                                 <th scope="row">Address</th>
-                                <td><input type="text" name="address" class="form-control" th:value="${user.address}"></td>
+                                <td><input type="text" name="address" class="form-control" th:value="${user.address}">
+                                </td>
                             </tr>
                             <tr>
                                 <th scope="row">City</th>
@@ -52,11 +55,13 @@
                             </tr>
                             <tr>
                                 <th scope="row">Pincode</th>
-                                <td><input type="text" name="pincode" class="form-control" th:value="${user.pincode}"></td>
+                                <td><input type="text" name="pincode" class="form-control" th:value="${user.pincode}">
+                                </td>
                             </tr>
                             <tr>
                                 <th scope="row">Image</th>
-                                <td><input type="file" name="image" class="form-control" th:value="${user.profileImage}"></td>
+                                <td><input type="file" name="image" class="form-control"
+                                           th:value="${user.profileImage}"></td>
                             </tr>
                             <tr>
                                 <th scope="row">Role</th>
@@ -92,7 +97,7 @@
                                 </tr>
                                 <tr>
                                     <th scope="row">New Password</th>
-                                    <td><input type="password" name="newPassword" class="form-control">
+                                    <td><input type="password" name="password" class="form-control">
                                     </td>
                                 </tr>
                                 <tr>

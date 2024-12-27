@@ -57,7 +57,7 @@ public class UserController {
         } else {
             session.setAttribute("succMsg", "Cart has been successfully saved");
         }
-        return "redirect:/product/"+productId;
+        return "redirect:/product/" + productId;
     }
 
     @GetMapping("/cart")
@@ -174,7 +174,7 @@ public class UserController {
     }
 
     @PostMapping("/change-password")
-    public String resetPassword(@RequestParam String currentPassword, @RequestParam String newPassword,
+    public String resetPassword(@RequestParam String currentPassword, @RequestParam String password,
                                 @RequestParam String confirmPassword, Principal principal, HttpSession session) {
 
         User user = userService.getUserByEmail(principal.getName());
@@ -182,22 +182,20 @@ public class UserController {
         if (!ObjectUtils.isEmpty(user)) {
             if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
                 session.setAttribute("errorMsg", "That is not your current password");
-                return "redirect:/user/profile";
             } else {
-                if (newPassword.equals(confirmPassword)) {
-                    user.setPassword(passwordEncoder.encode(newPassword));
-                    User updateUser = userService.updateUser(user);
-                    if (ObjectUtils.isEmpty(updateUser)) {
-                        session.setAttribute("errorMsg", "Something went wrong, internal server error");
-                    } else {
-                        session.setAttribute("succMsg", "Password has been successfully updated");
-                    }
-                } else {
+                if (!password.equals(confirmPassword)) {
                     session.setAttribute("errorMsg", "Passwords do not match");
+                    System.out.println("Password: " + password);
+                    System.out.println("Confirm Password: " + confirmPassword);
+                } else {
+                    user.setPassword(passwordEncoder.encode(password));
+                    userService.updateUser(user);
+                    session.setAttribute("succMsg", "Password has been successfully changed");
                 }
+                return "redirect:/user/profile";
             }
         } else {
-            session.setAttribute("erroMsg", "You are not authenticated, please log in");
+            session.setAttribute("errorMsg", "Something went wrong");
         }
         return "redirect:/user/profile";
     }

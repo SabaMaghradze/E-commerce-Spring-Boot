@@ -17,40 +17,48 @@
                 <p class="text-danger fw-bold">[[${session.errorMsg}]]</p>
                 <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
             </th:block>
-            <div class="col-md-12">
-                <table class="table table-bordered">
-                    <thead>
-                    <tr>
-                        <th scope="col">Sl. No</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Product Details</th>
-                        <th scope="col">Quantity</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="order, c : ${orders}">
-                        <th scope="row">[[${c.count}]]</th>
-                        <td>[[${order.orderDate}]]</td>
-                        <td>[[${order.product.title}]]</td>
-                        <td>[[${order.quantity}]]</td>
-                        <td>[[${order.quantity} * ${order.price}]]</td>
-                        <td>[[${order.status}]]</td>
-                        <td>
-                            <th:block th:if="${order.status != 'CANCELLED'}">
-                                <a th:href="@{'/user/update-status?id='+${order.id}+'&status=6'}"
-                                   class="btn btn-sm btn-danger">Cancel</a>
-                            </th:block>
-                            <th:block th:unless="${order.status != 'CANCELLED'}">
-                                <a href="#" class="btn btn-sm btn-danger disabled">Cancel</a>
-                            </th:block>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            <th:block th:if="${orders.size() > 0}">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th scope="col">Sl. No</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Product Details</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="order, c : ${orders}">
+                            <th scope="row">[[${c.count}]]</th>
+                            <td>[[${order.orderDate}]]</td>
+                            <td>[[${order.product.title}]]</td>
+                            <td>[[${order.quantity}]]</td>
+                            <td>[[${order.quantity} * ${order.price}]]$</td>
+                            <td>[[${order.status}]]</td>
+                            <td>
+                                <th:block th:if="${order.status != 'CANCELLED'}">
+                                    <a th:href="@{'/user/update-status?id='+${order.id}+'&status=6'}"
+                                       class="btn btn-sm btn-danger">Cancel</a>
+                                </th:block>
+                                <th:block th:unless="${order.status != 'CANCELLED'}">
+                                    <a href="#" class="btn btn-sm btn-danger disabled">Cancel</a>
+                                </th:block>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </th:block>
+            <th:block th:unless="${orders.size() > 0}">
+                <p class="text-center fs-5 fw-bold text-danger">Your order list is empty.</p><br>
+                <p class="text-center fs-5 fw-bold">Visit
+                    <a href="/products">Products</a> page to shop.
+                </p>
+            </th:block>
         </div>
     </div>
 </section>

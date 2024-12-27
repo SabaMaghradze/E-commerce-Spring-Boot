@@ -5,15 +5,12 @@ import com.ecom.repository.CartRepo;
 import com.ecom.repository.ProductOrderRepo;
 import com.ecom.repository.UserRepo;
 import com.ecom.service.ProductOrderService;
-import com.ecom.service.UserService;
 import com.ecom.utils.CommonUtils;
 import com.ecom.utils.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,9 +23,6 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
     @Autowired
     private CartRepo cartRepo;
-
-    @Autowired
-    private UserRepo userRepo;
 
     @Autowired
     private CommonUtils commonUtils;
@@ -70,6 +64,8 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             ProductOrder saveOrder = productOrderRepo.save(order);
 
             commonUtils.sendMailForOrder(saveOrder, saveOrder.getStatus());
+
+            cartRepo.delete(cart);
         }
     }
 

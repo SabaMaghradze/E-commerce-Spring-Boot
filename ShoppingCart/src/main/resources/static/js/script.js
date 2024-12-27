@@ -227,7 +227,7 @@ $(function () {
             confirmPassword: {
                 required: 'Required field',
                 space: 'Spaces are not allowed',
-                equalTo: 'password mismatch'
+                equalTo: 'Passwords do not match'
             }
         }
     })
