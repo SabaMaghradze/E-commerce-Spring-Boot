@@ -103,10 +103,6 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
-    public void resetAttempt(int id) {
-        // to do
-    }
-
     @Override
     public void updateResetToken(String email, String resetToken) {
         User user = userRepo.findByEmail(email);

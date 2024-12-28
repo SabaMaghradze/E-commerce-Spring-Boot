@@ -56,5 +56,4 @@ public class CustomUser implements UserDetails {
         }
         return user.getIsEnabled();
     }
-
 }

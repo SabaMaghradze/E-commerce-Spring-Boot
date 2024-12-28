@@ -25,8 +25,6 @@ public interface UserService {
 
     Boolean unlockAcc(User user);
 
-    void resetAttempt(int userId);
-
     void updateResetToken(String email, String resetToken);
 
     User getUserByResetToken(String token);
