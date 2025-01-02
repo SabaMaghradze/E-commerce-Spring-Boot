@@ -8,11 +8,11 @@ import java.util.List;
 
 @Repository
 public interface CartRepo extends JpaRepository<Cart, Integer> {
-    Cart findByProductIdAndUserId(Integer productId, Integer userId);
+    Cart findByProductIdAndMyUserId(Integer productId, Integer userId);
 
-    int countByUserId(int userId);
+    int countByMyUserId(int userId);
 
-    List<Cart> getCartsByUserId(int userId);
+    List<Cart> getCartsByMyUserId(int userId);
 
-    List<Cart> findCartByUserId(int userId);
+    List<Cart> findCartByMyUserId(int userId);
 }

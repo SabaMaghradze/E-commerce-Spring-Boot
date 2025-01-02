@@ -1,6 +1,6 @@
 package com.ecom.config;
 
-import com.ecom.model.User;
+import com.ecom.model.MyUser;
 import com.ecom.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,11 +17,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = userRepo.findByEmail(username);
+        MyUser myUser = userRepo.findByEmail(username);
 
-        if (user == null) {
+        if (myUser == null) {
             throw new UsernameNotFoundException("user not found");
         }
-        return new CustomUser(user);
+        return new CustomUser(myUser);
     }
 }

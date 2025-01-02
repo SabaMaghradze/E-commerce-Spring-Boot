@@ -1,18 +1,18 @@
 package com.ecom.repository;
 
-import com.ecom.model.User;
+import com.ecom.model.MyUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface UserRepo extends JpaRepository<User, Integer> {
-    User findByEmail(String email);
+public interface UserRepo extends JpaRepository<MyUser, Integer> {
+    MyUser findByEmail(String email);
 
-    List<User> findByRole(String role);
+    List<MyUser> findByRole(String role);
 
-    User findByResetToken(String token);
+    MyUser findByResetToken(String token);
 
     Boolean existsByEmail(String email);
 }

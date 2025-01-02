@@ -2,8 +2,8 @@ package com.ecom.service.impl;
 
 
 import com.ecom.model.Cart;
+import com.ecom.model.MyUser;
 import com.ecom.model.Product;
-import com.ecom.model.User;
 import com.ecom.repository.CartRepo;
 import com.ecom.repository.ProductRepository;
 import com.ecom.repository.UserRepo;
@@ -30,17 +30,17 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart saveCart(Integer productId, Integer userId) {
 
-        User user = userRepo.findById(userId).get();
+        MyUser myUser = userRepo.findById(userId).get();
         Product product = productRepo.findById(productId).get();
 
-        Cart cartStatus = cartRepo.findByProductIdAndUserId(productId, userId);
+        Cart cartStatus = cartRepo.findByProductIdAndMyUserId(productId, userId);
 
         Cart cart = null;
 
         if (ObjectUtils.isEmpty(cartStatus)) {
             cart = new Cart();
             cart.setProduct(product);
-            cart.setUser(user);
+            cart.setMyUser(myUser);
             cart.setQuantity(1.00);
             cart.setTotalPrice((cart.getQuantity()) * (cart.getProduct().getDiscountPrice()));
         } else {
@@ -54,7 +54,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public List<Cart> getCartsByUser(Integer userId) {
 
-        List<Cart> carts = cartRepo.getCartsByUserId(userId);
+        List<Cart> carts = cartRepo.getCartsByMyUserId(userId);
 
         Double netPrice = 0.0;
 
@@ -72,7 +72,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public int getCount(int userId) {
-        return cartRepo.countByUserId(userId);
+        return cartRepo.countByMyUserId(userId);
     }
 
     @Override

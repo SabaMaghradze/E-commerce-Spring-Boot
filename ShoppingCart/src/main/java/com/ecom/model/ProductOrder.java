@@ -30,7 +30,7 @@ public class ProductOrder {
     private Double quantity;
 
     @ManyToOne
-    private User user;
+    private MyUser myUser;
 
     private String status;
     private String paymentType;

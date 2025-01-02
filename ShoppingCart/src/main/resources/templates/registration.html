@@ -25,8 +25,8 @@
                         </th:block>
                     </div>
                     <div class="card-body">
-                        <form action="/saveUser" enctype="multipart/form-data"
-                              id="userRegister" novalidate method="post">
+                        <form action="/saveMyUser" method="post" enctype="multipart/form-data"
+                              id="userRegister" novalidate >
                             <div class="row">
                                 <div class="col">
                                     <label class="form-label">Full Name</label>
@@ -72,10 +72,10 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Profile Image</label><input class="form-control"
-                                                                                      name="profileImage" type="file">
+                                <label class="form-label">Profile Image</label>
+                                <input type="file" name="profilePic" class="form-control">
                             </div>
-                            <button type="submit" class="btn bg-primary text-white col-md-12">Register</button>
+                            <button class="btn bg-primary text-white col-md-12">Register</button>
                         </form>
                     </div>
                     <div class="card-footer text-center">

@@ -1,37 +1,37 @@
 package com.ecom.service;
 
-import com.ecom.model.User;
+import com.ecom.model.MyUser;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface UserService {
 
-    User saveUser(User user);
+    MyUser saveUser(MyUser myUser);
 
-    User getUserByEmail(String email);
+    MyUser getUserByEmail(String email);
 
     Boolean emailExists(String email);
 
-    List<User> getAllUsers();
+    List<MyUser> getAllUsers();
 
-    List<User> getUserByRole(String role);
+    List<MyUser> getUserByRole(String role);
 
     Boolean updateAccountStatus(Boolean status, int id);
 
-    void increaseFailedAttempts(User user);
+    void increaseFailedAttempts(MyUser myUser);
 
-    void lockAccount(User user);
+    void lockAccount(MyUser myUser);
 
-    Boolean unlockAcc(User user);
+    Boolean unlockAcc(MyUser myUser);
 
     void updateResetToken(String email, String resetToken);
 
-    User getUserByResetToken(String token);
+    MyUser getUserByResetToken(String token);
 
-    User updateUser(User user);
+    MyUser updateUser(MyUser myUser);
 
-    User updateUserProfile(User user, MultipartFile image);
+    MyUser updateUserProfile(MyUser myUser, MultipartFile image);
 
-    User saveAdmin(User user);
+    MyUser saveAdmin(MyUser myUser);
 }

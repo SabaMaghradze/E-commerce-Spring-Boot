@@ -1,6 +1,6 @@
 package com.ecom.config;
 
-import com.ecom.model.User;
+import com.ecom.model.MyUser;
 import com.ecom.repository.UserRepo;
 import com.ecom.service.UserService;
 import com.ecom.utils.AppConstants;
@@ -28,20 +28,20 @@ public class AuthFailureHandler extends SimpleUrlAuthenticationFailureHandler {
                                         AuthenticationException exception) throws IOException, ServletException {
 
         String email = req.getParameter("username");
-        User user = userRepo.findByEmail(email);
+        MyUser myUser = userRepo.findByEmail(email);
 
-        if (user != null) {
-            if (user.getIsEnabled()) {
-                if (user.getAccNonLocked()) {
-                    if (user.getNumberOfFailedAttempts() < AppConstants.ATTEMPT_COUNT) {
-                        userService.increaseFailedAttempts(user);
+        if (myUser != null) {
+            if (myUser.getIsEnabled()) {
+                if (myUser.getAccNonLocked()) {
+                    if (myUser.getNumberOfFailedAttempts() < AppConstants.ATTEMPT_COUNT) {
+                        userService.increaseFailedAttempts(myUser);
                         exception = new LockedException("Incorrect Credentials, Please Try Again");
                     } else {
-                        userService.lockAccount(user);
+                        userService.lockAccount(myUser);
                         exception = new LockedException("Your account has been locked, failed attempt N.3");
                     }
                 } else {
-                    if (userService.unlockAcc(user)) {
+                    if (userService.unlockAcc(myUser)) {
                         exception = new LockedException("Your account is unlocked, please try again.");
                     } else {
                         exception = new LockedException("Your account is locked, please try again later");

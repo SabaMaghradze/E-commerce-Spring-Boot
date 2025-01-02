@@ -1,7 +1,7 @@
 package com.ecom.utils;
 
+import com.ecom.model.MyUser;
 import com.ecom.model.ProductOrder;
-import com.ecom.model.User;
 import com.ecom.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -82,9 +82,9 @@ public class CommonUtils {
         return true;
     }
 
-    public User getLoggedInUserDetails(Principal principal) {
+    public MyUser getLoggedInUserDetails(Principal principal) {
         String email = principal.getName();
-        User user = userService.getUserByEmail(email);
-        return user;
+        MyUser myUser = userService.getUserByEmail(email);
+        return myUser;
     }
 }

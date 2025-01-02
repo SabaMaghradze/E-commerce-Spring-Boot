@@ -1,9 +1,9 @@
 package com.ecom.controller;
 
 import com.ecom.model.Cart;
+import com.ecom.model.MyUser;
 import com.ecom.model.OrderRequest;
 import com.ecom.model.ProductOrder;
-import com.ecom.model.User;
 import com.ecom.service.CartService;
 import com.ecom.service.CategoryService;
 import com.ecom.service.ProductOrderService;
@@ -62,8 +62,8 @@ public class UserController {
 
     @GetMapping("/cart")
     public String loadCartPage(Principal principal, Model model) {
-        User user = commonUtils.getLoggedInUserDetails(principal);
-        List<Cart> carts = cartService.getCartsByUser(user.getId());
+        MyUser myUser = commonUtils.getLoggedInUserDetails(principal);
+        List<Cart> carts = cartService.getCartsByUser(myUser.getId());
         model.addAttribute("carts", carts);
         if (!carts.isEmpty()) {
             model.addAttribute("netPrice", carts.get(carts.size() - 1).getNetPrice());
@@ -77,9 +77,9 @@ public class UserController {
     public void getUserDetails(Principal principal, Model model) {
         if (principal != null) {
             String email = principal.getName();
-            User user = userService.getUserByEmail(email);
-            model.addAttribute("user", user);
-            int cartCount = cartService.getCount(user.getId());
+            MyUser myUser = userService.getUserByEmail(email);
+            model.addAttribute("user", myUser);
+            int cartCount = cartService.getCount(myUser.getId());
             model.addAttribute("cartCount", cartCount);
         } else {
             model.addAttribute("user", null);
@@ -95,8 +95,8 @@ public class UserController {
 
     @GetMapping("/order")
     public String orderPage(Model model, Principal principal) {
-        User user = commonUtils.getLoggedInUserDetails(principal);
-        List<Cart> carts = cartService.getCartsByUser(user.getId());
+        MyUser myUser = commonUtils.getLoggedInUserDetails(principal);
+        List<Cart> carts = cartService.getCartsByUser(myUser.getId());
         model.addAttribute("carts", carts);
         if (!carts.isEmpty()) {
             model.addAttribute("netPrice", carts.get(carts.size() - 1).getNetPrice());
@@ -110,8 +110,8 @@ public class UserController {
 
     @PostMapping("/save-order")
     public String saveOrder(@ModelAttribute OrderRequest orderRequest, Principal principal) throws Exception {
-        User user = userService.getUserByEmail(principal.getName());
-        productOrderService.saveOrder(user.getId(), orderRequest);
+        MyUser myUser = userService.getUserByEmail(principal.getName());
+        productOrderService.saveOrder(myUser.getId(), orderRequest);
         return "redirect:/user/order_success";
     }
 
@@ -122,8 +122,8 @@ public class UserController {
 
     @GetMapping("/orders")
     public String loadMyOrdersPage(Principal principal, Model model) {
-        User user = userService.getUserByEmail(principal.getName());
-        model.addAttribute("orders", productOrderService.getOrdersByUserId(user.getId()));
+        MyUser myUser = userService.getUserByEmail(principal.getName());
+        model.addAttribute("orders", productOrderService.getOrdersByUserId(myUser.getId()));
         return "/User/my_orders";
     }
 
@@ -161,11 +161,11 @@ public class UserController {
     }
 
     @PostMapping("/update-profile")
-    public String updateUserProfile(@ModelAttribute User user, @RequestParam MultipartFile image, HttpSession session) {
+    public String updateUserProfile(@ModelAttribute MyUser myUser, @RequestParam MultipartFile image, HttpSession session) {
 
-        User updateUser = userService.updateUserProfile(user, image);
+        MyUser updateMyUser = userService.updateUserProfile(myUser, image);
 
-        if (ObjectUtils.isEmpty(updateUser)) {
+        if (ObjectUtils.isEmpty(updateMyUser)) {
             session.setAttribute("errorMsg", "Failed to update user");
         } else {
             session.setAttribute("succMsg", "User has been successfully updated");
@@ -177,10 +177,10 @@ public class UserController {
     public String resetPassword(@RequestParam String currentPassword, @RequestParam String password,
                                 @RequestParam String confirmPassword, Principal principal, HttpSession session) {
 
-        User user = userService.getUserByEmail(principal.getName());
+        MyUser myUser = userService.getUserByEmail(principal.getName());
 
-        if (!ObjectUtils.isEmpty(user)) {
-            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+        if (!ObjectUtils.isEmpty(myUser)) {
+            if (!passwordEncoder.matches(currentPassword, myUser.getPassword())) {
                 session.setAttribute("errorMsg", "That is not your current password");
             } else {
                 if (!password.equals(confirmPassword)) {
@@ -188,8 +188,8 @@ public class UserController {
                     System.out.println("Password: " + password);
                     System.out.println("Confirm Password: " + confirmPassword);
                 } else {
-                    user.setPassword(passwordEncoder.encode(password));
-                    userService.updateUser(user);
+                    myUser.setPassword(passwordEncoder.encode(password));
+                    userService.updateUser(myUser);
                     session.setAttribute("succMsg", "Password has been successfully changed");
                 }
                 return "redirect:/user/profile";

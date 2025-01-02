@@ -2,7 +2,7 @@ package com.ecom.controller;
 
 import com.ecom.model.Category;
 import com.ecom.model.Product;
-import com.ecom.model.User;
+import com.ecom.model.MyUser;
 import com.ecom.service.CartService;
 import com.ecom.service.CategoryService;
 import com.ecom.service.ProductService;
@@ -19,9 +19,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.naming.Name;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -84,9 +84,9 @@ public class HomeController {
     public void getUserDetails(Principal principal, Model model) {
         if (principal != null) {
             String email = principal.getName();
-            User user = userService.getUserByEmail(email);
-            model.addAttribute("user", user);
-            int cartCount = cartService.getCount(user.getId());
+            MyUser myUser = userService.getUserByEmail(email);
+            model.addAttribute("user", myUser);
+            int cartCount = cartService.getCount(myUser.getId());
             model.addAttribute("cartCount", cartCount);
         } else {
             model.addAttribute("user", null);
@@ -125,29 +125,28 @@ public class HomeController {
         return "view_product";
     }
 
-    @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute User user, @RequestParam("profileImage")
-    MultipartFile profileImage, HttpSession session) throws IOException {
+    @PostMapping("/saveMyUser")
+    public String saveUser(@ModelAttribute MyUser myUser, @RequestParam("profilePic")
+    MultipartFile profileImage, HttpSession session) {
 
-        Boolean emailExists = userService.emailExists(user.getEmail());
+        Boolean emailExists = userService.emailExists(myUser.getEmail());
 
         if (emailExists) {
             session.setAttribute("errorMsg", "Email already in use");
+            return "redirect:/register";
         } else {
             String imageName = profileImage.isEmpty() ? "default.jpg" : profileImage.getOriginalFilename();
-            user.setProfileImage(imageName);
+            myUser.setProfileImage(imageName);
 
-            User saveUser = userService.saveUser(user);
+            MyUser saveMyUser = userService.saveUser(myUser);
 
-            if (!ObjectUtils.isEmpty(saveUser)) {
-                if (!profileImage.isEmpty()) {
-                    try {
-                        File saveFolder = new ClassPathResource("static/img").getFile();
-                        Path path = Paths.get(saveFolder.getAbsolutePath() + File.separator + "profile_img" + File.separator + profileImage.getOriginalFilename());
-                        Files.copy(profileImage.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException exc) {
-                        System.out.println(exc + ": " + exc.getMessage());
-                    }
+            if (!ObjectUtils.isEmpty(saveMyUser)) {
+                try {
+                    File saveFolder = new ClassPathResource("static/img").getFile();
+                    Path path = Paths.get(saveFolder.getAbsolutePath() + File.separator + "profile_img" + File.separator + profileImage.getOriginalFilename());
+                    Files.copy(profileImage.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+                } catch (Exception exc) {
+                    System.out.println(exc + ": " + exc.getMessage());
                 }
                 session.setAttribute("succMsg", "Registration successful");
             } else {
@@ -166,9 +165,9 @@ public class HomeController {
 
     @PostMapping("/forgot-password")
     public String processForgotPassword(@RequestParam String email, HttpSession session, HttpServletRequest req) throws MessagingException, UnsupportedEncodingException {
-        User user = userService.getUserByEmail(email);
+        MyUser myUser = userService.getUserByEmail(email);
 
-        if (ObjectUtils.isEmpty(user)) {
+        if (ObjectUtils.isEmpty(myUser)) {
             session.setAttribute("errorMsg", "Invalid Email");
         } else {
             String resetToken = UUID.randomUUID().toString();
@@ -188,9 +187,9 @@ public class HomeController {
     @GetMapping("/reset-password")
     public String resetPasswordPage(@RequestParam String token, Model model) {
 
-        User user = userService.getUserByResetToken(token);
+        MyUser myUser = userService.getUserByResetToken(token);
 
-        if (user == null) {
+        if (myUser == null) {
             model.addAttribute("msg", "Your link is invalid or expired.");
             return "message";
         }
@@ -208,16 +207,16 @@ public class HomeController {
             return "redirect:/reset-password?token=" + token;
         }
 
-        User user = userService.getUserByResetToken(token);
+        MyUser myUser = userService.getUserByResetToken(token);
 
-        if (user == null) {
+        if (myUser == null) {
             session.setAttribute("errorMsg", "Your link is invalid or expired.");
             model.addAttribute("msg", "Your link is invalid or expired.");
             return "message";
         } else {
-            user.setPassword(passwordEncoder.encode(password));
-            user.setResetToken(null);
-            userService.updateUser(user);
+            myUser.setPassword(passwordEncoder.encode(password));
+            myUser.setResetToken(null);
+            userService.updateUser(myUser);
             session.setAttribute("succMsg", "Password has been changed successfully");
             model.addAttribute("msg", "Password has been changed successfully");
             return "message";

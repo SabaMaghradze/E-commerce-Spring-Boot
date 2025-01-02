@@ -1,9 +1,9 @@
 package com.ecom.controller;
 
 import com.ecom.model.Category;
+import com.ecom.model.MyUser;
 import com.ecom.model.Product;
 import com.ecom.model.ProductOrder;
-import com.ecom.model.User;
 import com.ecom.service.CategoryService;
 import com.ecom.service.ProductOrderService;
 import com.ecom.service.ProductService;
@@ -169,7 +169,8 @@ public class AdminController {
     }
 
     @PostMapping("/saveProduct")
-    public String saveProduct(@ModelAttribute Product product, @RequestParam("file") MultipartFile image, HttpSession session) {
+    public String saveProduct(@ModelAttribute Product product,
+                              @RequestParam("file") MultipartFile image, HttpSession session) {
 
         String imageName = image.isEmpty() ? "default.jpg" : image.getOriginalFilename();
 
@@ -362,21 +363,21 @@ public class AdminController {
     }
 
     @PostMapping("/saveAdmin")
-    public String saveAdmin(@ModelAttribute User user, @RequestParam("profileImage") MultipartFile profileImage, HttpSession session) {
+    public String saveAdmin(@ModelAttribute MyUser myUser, @RequestParam("profileImage") MultipartFile profileImage, HttpSession session) {
 
-        System.out.println("User Data: " + user);
+        System.out.println("User Data: " + myUser);
 
-        if (user == null) {
+        if (myUser == null) {
             session.setAttribute("errorMsg", "Failed to register: User object is null");
             return "redirect:/register";
         }
 
         String imageName = profileImage.isEmpty() ? "default.jpg" : profileImage.getOriginalFilename();
-        user.setProfileImage(imageName);
+        myUser.setProfileImage(imageName);
 
-        User saveUser = userService.saveAdmin(user);
+        MyUser saveMyUser = userService.saveAdmin(myUser);
 
-        if (!ObjectUtils.isEmpty(saveUser)) {
+        if (!ObjectUtils.isEmpty(saveMyUser)) {
             try {
                 File saveFolder = new ClassPathResource("static/img").getFile();
                 Path path = Paths.get(saveFolder.getAbsolutePath() + File.separator + "profile_img" + File.separator + profileImage.getOriginalFilename());
@@ -392,11 +393,11 @@ public class AdminController {
     }
 
     @PostMapping("/update-profile")
-    public String updateUserProfile(@ModelAttribute User user, @RequestParam MultipartFile image, HttpSession session) {
+    public String updateUserProfile(@ModelAttribute MyUser myUser, @RequestParam MultipartFile image, HttpSession session) {
 
-        User updateUser = userService.updateUserProfile(user, image);
+        MyUser updateMyUser = userService.updateUserProfile(myUser, image);
 
-        if (ObjectUtils.isEmpty(updateUser)) {
+        if (ObjectUtils.isEmpty(updateMyUser)) {
             session.setAttribute("errorMsg", "Failed to update user");
         } else {
             session.setAttribute("succMsg", "User has been successfully updated");
@@ -408,17 +409,17 @@ public class AdminController {
     public String resetPassword(@RequestParam String currentPassword, @RequestParam String newPassword,
                                 @RequestParam String confirmPassword, Principal principal, HttpSession session) {
 
-        User user = commonUtils.getLoggedInUserDetails(principal);
+        MyUser myUser = commonUtils.getLoggedInUserDetails(principal);
 
-        if (!ObjectUtils.isEmpty(user)) {
-            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+        if (!ObjectUtils.isEmpty(myUser)) {
+            if (!passwordEncoder.matches(currentPassword, myUser.getPassword())) {
                 session.setAttribute("errorMsg", "That is not your current password");
                 return "redirect:/admin/profile";
             } else {
                 if (newPassword.equals(confirmPassword)) {
-                    user.setPassword(passwordEncoder.encode(newPassword));
-                    User updateUser = userService.updateUser(user);
-                    if (ObjectUtils.isEmpty(updateUser)) {
+                    myUser.setPassword(passwordEncoder.encode(newPassword));
+                    MyUser updateMyUser = userService.updateUser(myUser);
+                    if (ObjectUtils.isEmpty(updateMyUser)) {
                         session.setAttribute("errorMsg", "Something went wrong, internal server error");
                     } else {
                         session.setAttribute("succMsg", "Password has been successfully updated");

@@ -19,7 +19,7 @@ public class Cart {
     private Integer id;
 
     @ManyToOne
-    private User user;
+    private MyUser myUser;
 
     @ManyToOne
     private Product product;

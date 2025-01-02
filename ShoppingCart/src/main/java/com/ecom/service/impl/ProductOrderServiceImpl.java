@@ -3,7 +3,6 @@ package com.ecom.service.impl;
 import com.ecom.model.*;
 import com.ecom.repository.CartRepo;
 import com.ecom.repository.ProductOrderRepo;
-import com.ecom.repository.UserRepo;
 import com.ecom.service.ProductOrderService;
 import com.ecom.utils.CommonUtils;
 import com.ecom.utils.OrderStatus;
@@ -30,7 +29,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     @Override
     public void saveOrder(int userId, OrderRequest orderRequest) throws Exception {
 
-        List<Cart> carts = cartRepo.findCartByUserId(userId);
+        List<Cart> carts = cartRepo.findCartByMyUserId(userId);
 
         for (Cart cart : carts) {
 
@@ -43,7 +42,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             order.setPrice(cart.getProduct().getDiscountPrice());
 
             order.setQuantity(cart.getQuantity());
-            order.setUser(cart.getUser());
+            order.setMyUser(cart.getMyUser());
 
             order.setStatus(OrderStatus.IN_PROGRESS.getName());
             order.setPaymentType(orderRequest.getPaymentMethod());
@@ -71,7 +70,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
     @Override
     public List<ProductOrder> getOrdersByUserId(int userId) {
-        List<ProductOrder> userOrders = productOrderRepo.findByUserId(userId);
+        List<ProductOrder> userOrders = productOrderRepo.findByMyUserId(userId);
         return userOrders;
     }
 

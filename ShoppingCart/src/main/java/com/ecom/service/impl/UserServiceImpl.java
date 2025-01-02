@@ -1,6 +1,6 @@
 package com.ecom.service.impl;
 
-import com.ecom.model.User;
+import com.ecom.model.MyUser;
 import com.ecom.repository.UserRepo;
 import com.ecom.service.UserService;
 import com.ecom.utils.AppConstants;
@@ -30,17 +30,17 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public User saveUser(User user) {
-        user.setRole("ROLE_USER");
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setIsEnabled(true);
-        user.setAccNonLocked(true);
-        user.setNumberOfFailedAttempts(0);
-        return userRepo.save(user);
+    public MyUser saveUser(MyUser myUser) {
+        myUser.setRole("ROLE_USER");
+        myUser.setPassword(passwordEncoder.encode(myUser.getPassword()));
+        myUser.setIsEnabled(true);
+        myUser.setAccNonLocked(true);
+        myUser.setNumberOfFailedAttempts(0);
+        return userRepo.save(myUser);
     }
 
     @Override
-    public User getUserByEmail(String email) {
+    public MyUser getUserByEmail(String email) {
         return userRepo.findByEmail(email);
     }
 
@@ -49,55 +49,55 @@ public class UserServiceImpl implements UserService {
         return userRepo.existsByEmail(email);
     }
 
-    public List<User> getAllUsers() {
+    public List<MyUser> getAllUsers() {
         return userRepo.findAll();
     }
 
     @Override
-    public List<User> getUserByRole(String role) {
+    public List<MyUser> getUserByRole(String role) {
         return userRepo.findByRole(role);
     }
 
     @Override
     public Boolean updateAccountStatus(Boolean status, int id) {
 
-        Optional<User> findByUser = userRepo.findById(id);
+        Optional<MyUser> findByUser = userRepo.findById(id);
 
         if (findByUser.isPresent()) {
-            User user = findByUser.get();
-            user.setIsEnabled(status);
-            userRepo.save(user);
+            MyUser myUser = findByUser.get();
+            myUser.setIsEnabled(status);
+            userRepo.save(myUser);
             return true;
         }
         return false;
     }
 
     @Override
-    public void increaseFailedAttempts(User user) {
-        int attempt = user.getNumberOfFailedAttempts() + 1;
-        user.setNumberOfFailedAttempts(attempt);
-        userRepo.save(user);
+    public void increaseFailedAttempts(MyUser myUser) {
+        int attempt = myUser.getNumberOfFailedAttempts() + 1;
+        myUser.setNumberOfFailedAttempts(attempt);
+        userRepo.save(myUser);
     }
 
     @Override
-    public void lockAccount(User user) {
-        user.setAccNonLocked(false);
-        user.setLockTime(new Date());
-        userRepo.save(user);
+    public void lockAccount(MyUser myUser) {
+        myUser.setAccNonLocked(false);
+        myUser.setLockTime(new Date());
+        userRepo.save(myUser);
     }
 
-    public Boolean unlockAcc(User user) {
+    public Boolean unlockAcc(MyUser myUser) {
 
-        long lockTime = user.getLockTime().getTime();
+        long lockTime = myUser.getLockTime().getTime();
         long unlockTime = lockTime + AppConstants.UNLOCK_DURATION_TIME;
 
         long currentTime = System.currentTimeMillis();
 
         if (unlockTime < currentTime) {
-            user.setAccNonLocked(true);
-            user.setLockTime(null);
-            user.setNumberOfFailedAttempts(0);
-            userRepo.save(user);
+            myUser.setAccNonLocked(true);
+            myUser.setLockTime(null);
+            myUser.setNumberOfFailedAttempts(0);
+            userRepo.save(myUser);
             return true;
         }
         return false;
@@ -105,39 +105,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateResetToken(String email, String resetToken) {
-        User user = userRepo.findByEmail(email);
-        user.setResetToken(resetToken);
-        userRepo.save(user);
+        MyUser myUser = userRepo.findByEmail(email);
+        myUser.setResetToken(resetToken);
+        userRepo.save(myUser);
     }
 
     @Override
-    public User getUserByResetToken(String token) {
+    public MyUser getUserByResetToken(String token) {
         return userRepo.findByResetToken(token);
     }
 
     @Override
-    public User updateUser(User user) {
-        return userRepo.save(user);
+    public MyUser updateUser(MyUser myUser) {
+        return userRepo.save(myUser);
     }
 
     @Override
-    public User updateUserProfile(User user, MultipartFile image) {
+    public MyUser updateUserProfile(MyUser myUser, MultipartFile image) {
 
-        User userExists = userRepo.findById(user.getId()).get();
+        MyUser myUserExists = userRepo.findById(myUser.getId()).get();
 
         if (!image.isEmpty()) {
-            userExists.setProfileImage(user.getProfileImage());
+            myUserExists.setProfileImage(myUser.getProfileImage());
         }
 
-        if (!ObjectUtils.isEmpty(userExists)) {
-            userExists.setName(user.getName());
-            userExists.setEmail(user.getEmail());
-            userExists.setMobileNumber(user.getMobileNumber());
-            userExists.setState(user.getState());
-            userExists.setCity(user.getCity());
-            userExists.setAddress(user.getAddress());
-            userExists.setPincode(user.getPincode());
-            userExists = userRepo.save(userExists);
+        if (!ObjectUtils.isEmpty(myUserExists)) {
+            myUserExists.setName(myUser.getName());
+            myUserExists.setEmail(myUser.getEmail());
+            myUserExists.setMobileNumber(myUser.getMobileNumber());
+            myUserExists.setState(myUser.getState());
+            myUserExists.setCity(myUser.getCity());
+            myUserExists.setAddress(myUser.getAddress());
+            myUserExists.setPincode(myUser.getPincode());
+            myUserExists = userRepo.save(myUserExists);
         }
 
         if (!image.isEmpty()) {
@@ -149,17 +149,17 @@ public class UserServiceImpl implements UserService {
                 exception.printStackTrace();
             }
         }
-        return userExists;
+        return myUserExists;
     }
 
     @Override
-    public User saveAdmin(User user) {
-        user.setRole("ROLE_ADMIN");
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setIsEnabled(true);
-        user.setAccNonLocked(true);
-        user.setNumberOfFailedAttempts(0);
-        return userRepo.save(user);
+    public MyUser saveAdmin(MyUser myUser) {
+        myUser.setRole("ROLE_ADMIN");
+        myUser.setPassword(passwordEncoder.encode(myUser.getPassword()));
+        myUser.setIsEnabled(true);
+        myUser.setAccNonLocked(true);
+        myUser.setNumberOfFailedAttempts(0);
+        return userRepo.save(myUser);
     }
 }
 

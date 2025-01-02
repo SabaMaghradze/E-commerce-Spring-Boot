@@ -1,7 +1,6 @@
 package com.ecom.config;
 
-import com.ecom.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.ecom.model.MyUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,27 +10,27 @@ import java.util.Collection;
 
 public class CustomUser implements UserDetails {
 
-    private User user;
+    private MyUser myUser;
 
-    public CustomUser(User user) {
+    public CustomUser(MyUser myUser) {
         super();
-        this.user = user;
+        this.myUser = myUser;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getRole());
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(myUser.getRole());
         return Arrays.asList(authority);
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return myUser.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return myUser.getEmail();
     }
 
     @Override
@@ -41,7 +40,7 @@ public class CustomUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return user.getAccNonLocked();
+        return myUser.getAccNonLocked();
     }
 
     @Override
@@ -51,9 +50,9 @@ public class CustomUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        if (user.getIsEnabled() == null) {
-            user.setIsEnabled(false);
+        if (myUser.getIsEnabled() == null) {
+            myUser.setIsEnabled(false);
         }
-        return user.getIsEnabled();
+        return myUser.getIsEnabled();
     }
 }
